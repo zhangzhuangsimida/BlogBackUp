@@ -8,7 +8,7 @@ tags:
 ---
 ## Hexo + GitHub Pages + Typora 构建博客 (1) Hexo 的安装
 
-最近在学一些网络知识，但是使用市面上支持 [**Markdown **](https://www.runoob.com/markdown/md-tutorial.html)的 笔记工具（如简书，有道云笔记，印象笔记）的产品，时常遇到两类问题：
+最近在学一些网络知识，但是使用市面上支持 [Markdown ](https://www.runoob.com/markdown/md-tutorial.html)的 笔记工具（如简书，有道云笔记，印象笔记）的产品，时常遇到两类问题：
 
 1. 功能过于复杂（有道，印象），很多功能我用不上，且打开有些卡顿
 
@@ -22,6 +22,10 @@ tags:
 
  Hexo+Git Page +Typora，
 
+
+
+
+
 ```mermaid
 graph TD
 A[简易博客系统] --> B(Hexo 生成静态网页)
@@ -29,6 +33,8 @@ A --> C(Github Page Mini服务器)
 A --> D(Typora Mini客户端 编辑文本)
 E[简易博客系统]
 ```
+
+
 
    ###  Hexo 构建博客静态页面
 
@@ -331,3 +337,26 @@ post_asset_folder: true
 ```
 npm install https://github.com/CodeFalling/hexo-asset-image --save
 ```
+
+#### Hexo Next Theme 不支持mermaid流程图
+
+```bash
+npm install hexo-filter-mermaid-diagrams --save 
+```
+
+打开theme/next/_config.xml
+
+然后搜索关键字mermaid，如果是false，就把它改成true，如果是true，就可以不用修改了
+
+
+
+> 参考文章:
+>
+> [hexo如何加入本地图片：hexo](https://www.dazhuanlan.com/2020/01/06/5e1292fd8e5b9/)
+>
+> [使用 Github Pages 和 Hexo 搭建自己的独立博客【超级详细的小白教程】](https://blog.csdn.net/qq_36759224/article/details/82121420)
+>
+> [用Typora写Hexo博客](https://www.jianshu.com/p/053374fe219f)
+>
+> [hexo next渲染markdown mermaid流程图](https://jingyan.baidu.com/article/e75aca85a3b528552fdac670.html)
+
