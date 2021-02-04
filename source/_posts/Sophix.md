@@ -141,7 +141,7 @@ Sophix SDK使用到以下权限，使用maven依赖或者aar依赖可以不用�
 >
 > `READ_EXTERNAL_STORAGE`权限属于Dangerous Permissions，仅调试工具获取外部补丁需要，不影响线上发布的补丁加载，调试时请自行做好Android 6.0以上的运行时权限获取。
 
-#### 配置AndroidManifest文件
+#### 配置AndroidManifest文件（最好在Application初始化时配置而不是Mainfest文件）
 
 在`AndroidManifest.xml`中间的`application`节点下添加如下配置：
 
@@ -297,13 +297,66 @@ SophixEntry应指定项目中原先真正的Application（原项目里applicatio
 
 在控制台创建对应的应用版本，该版本与**基线包初始化时setAppVersion**所传的版本号对应。更多详情，参见[创建版本](https://help.aliyun.com/document_detail/93805.html)。
 
+1. 登录移动热修复控制台。
+
+2. 在左侧导航栏选择**补丁管理**。
+
+3. 在补丁管理页面单击**添加版本**，输入应用版本号后单击**确认**
+
+   ![image-20210203155115536](Sophix/image-20210203155115536.png)
+
 ## 生成补丁
 
 上传补丁前您需要先在线下生成补丁包，打包工具下载及使用详情，参见[生成补丁](https://help.aliyun.com/document_detail/53247.html)。
 
+#### 补丁版本说明
+
+1. 补丁是针对客户端具体某个版本的，补丁和具体版本绑定。
+
+   示例：应用当前版本号是1.1.0，那么只能在后台查询到1.1.0版本对应发布的补丁，而查询不到之前1.0.0旧版本发布的补丁。
+
+2. 针对某个具体版本发布的新补丁，必须包含所有的bugfix，而不能依赖补丁递增修复的方式，因为应用仅可能加载一个补丁。
+
+   示例：针对1.0.0版本在后台发布了一个补丁版本号为1的补丁修复了bug1，然后发现此时针对这个版本补丁1修复的不完全，代码还有bug2，在后台重新发布一个补丁版本号为2的补丁，那么此时补丁2就必须同时包含bug1和bug2的修复；如果只包含bug2的修复，bug1的修复就会失效。
+
+#### 打包工具下载
+
+补丁包生成需要使用打补丁工具SophixPatchTool，如还未下载打补丁工具，请前往下载Android打包工具。
+
+打包工具下载地址如下：
+
+- [Mac版本打包工具下载](http://ams-hotfix-repo.oss-cn-shanghai.aliyuncs.com/SophixPatchTool_macos.zip)
+- [Windows版本打包工具下载](http://ams-hotfix-repo.oss-cn-shanghai.aliyuncs.com/SophixPatchTool_windows.zip)
+- [Linux版本打包工具地址](http://ams-hotfix-repo.oss-cn-shanghai.aliyuncs.com/SophixPatchTool_linux.zip)
+
+#### 使用打包工具打包
+
+1. 双击打开打包工具，进入打包工具主对话框。
+
+  ![image-20210203164717343](Sophix/image-20210203164717343.png)
+
+  | 参数 | 说明                                                         |
+  | :--- | :----------------------------------------------------------- |
+  | 旧包 | <必填> 选择基线包路径（有问题的APK）。                       |
+  | 新包 | <必填> 选择新包路径（修复过该问题APK）。                     |
+  | 日志 | 打开日志输出窗口。                                           |
+  | 设置 | • 补丁输出路径：<必填>指定生成补丁之后补丁的存放位置，必须是已存在的目录。• Key Store Path：<选填>本地的签名文件的路径，不输入则不做签名。目前只支持jks的签名文件。• Key Store Password：<选填>证书文件的密码。• Key Alias：<选填>Key的别名。• Key Passwrod：<选填>Key的密码。• AES Key：<选填>自定义aes秘钥，必须是16位数字或字母的组合。必须与setAesKey中设置的秘钥一致。• Filter Class File：<选填>本地的白名单类列表文件的路径，放进去的类不会再计算patch，文件格式：一行一个类名。 |
+  | 高级 | • 强制冷启动：勾选的话强制生成补丁包为需要冷启动才能修复的格式。默认不选的话，工具会根据代码变更情况自动选择即时热替换或者冷启动修复。• 不比较资源：打补丁时不比较资源的变化。• 不比较SO库：打补丁时不比较SO库的变化。• 检查初始化：检查初始化写法是否正确。• 快速打包：加快补丁生成速度。• 优化资源补丁：压缩补丁资源的大小。 |
+  | GO！ | 开始生成补丁。                                               |
+
+2. 上传新旧包，进行设置后单击**GO**。
+
 ## 上传补丁
 
 上传补丁到移动热修复管理控制台的对应版本中，使用详情，参见[上传补丁](https://help.aliyun.com/document_detail/93812.html)。
+
+1. 登录移动热修复控制台。
+
+2. 左侧导航栏选择**补丁管理**。
+
+3. 选择版本，单击**上传补丁**，选则补丁文件、填写补丁描述后单击**确定**
+
+   ![image-20210203164906491](Sophix/image-20210203164906491.png)
 
 ## 调试补丁
 
@@ -320,4 +373,6 @@ SophixEntry应指定项目中原先真正的Application（原项目里applicatio
 ## 查看计费数据
 
 查看补丁查询接口被调用次数、活跃设备数、补丁加载数量等，详情参见[计费数据](https://help.aliyun.com/document_detail/93817.html)。
+
+
 
