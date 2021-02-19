@@ -20,6 +20,8 @@ tags:
 
  ![image-20210202164147743](Sophix/image-20210202164147743.png)
 
+<!--more-->
+
 ## 创建应用
 
 EMAS平台中的应用即您实际端应用的映射，您需要在EMAS控制台创建应用，与您要加载SDK的端应用进行关联。创建应用请参考[EMAS 快速入门>创建产品及应用](https://help.aliyun.com/document_detail/169962.html)。
