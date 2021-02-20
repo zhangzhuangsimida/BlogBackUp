@@ -1,19 +1,18 @@
 ---
-title: 【Git-02】Git深入之FeatureBranching
-date: 2021-02-18 17:19:28
+title: 【剑指offer01】-数组
+date: 2021-02-19 16:26:58
 categories:
-- Git
+- 算法
+  - 数组
+    - 剑指offer
 tags:
-- Git
+- 算法
+  - 数组
+    - 剑指offer
 ---
-
-# 1. 数组中重复的数
-
-题目描述：
+# 数组中重复的数字
 
 在一个长度为n的数组里的所有数字都在0到n-1的范围内。 数组中某些数字是重复的，但不知道有几个数字是重复的。也不知道每个数字重复几次。请找出数组中第一个重复的数字。 例如，如果输入长度为7的数组{2,3,1,0,2,5,3}，那么对应的输出是第一个重复的数字2。
-
-<!--more-->
 
 返回描述：
 
@@ -21,19 +20,24 @@ tags:
 
 如果数组中有重复的数字，把重复的数字放到参数duplication[0]中。（ps:duplication已经初始化，可以直接赋值使用。）
 
-## 方法一：哈希+遍历 
+<!--more-->
+
+## 方法一：哈希+遍历
 
 题目中含有**重复**的字眼，第一反应应该想到哈希，set。这里我们用哈希来解。
 算法步骤：
 
-1. 新建一个HashSet
-2. 遍历数组，如果set中不包含这个数，则将它添加到Set中，如果包含，则说明这就是重复的数
+1. 新建一个HashSet对象
+
+2. 遍历数组，如果Set中包含此数，则返回True，否则继续循环
+
+3. 若直到循环结束没有遇到Set中包含的数据，则数组没有重复的数
 
 代码如下：
 
-```
+```java
   public boolean duplicate(int numbers[],int length,int [] duplication) {
-        if(numbers==null||numbers.length==0){
+      if(numbers==null||numbers.length==0){
             return false;
         }
         Set<Integer> set = new HashSet<>();
@@ -46,37 +50,32 @@ tags:
                 set.add(numbers[i]);
             }
         }
-        if (set.size()==length){
-            return false;
-        }
-        return true;
+    
+        return false;
     }
 ```
 
 时间复杂度：O(N)
 空间复杂度：O(N)
 
-[
-](javascript:void(0);)
-
-## 方法二： in-place算法 （这个方法找到的不是第一个重复的）
-
-注意，这个方法找到的是任意重复的数，而不是第一个。
+## 方法二：in-place算法 (这个算法算出的不是第一个重复的数，是任意的)
 
 方法一中的一个条件我们没有用到。也就是数据的范围是0-n-1。所以我们可以这么做：
 
-
-
 1. 设置一个指针i指向开头0，
+
 2. 对于arr[i]进行判断，如果arr[i] == i， 说明下标为i的数据**正确的放在了该位置上**，让i++
+
 3. 如果arr[i] != i, 说明没有正确放在位置上，那么我们就把arr[i]放在正确的位置上，也就是交换
    arr[i] 和arr[arr[i]]。交换之后，如果arr[i] ！= i, 继续交换。
+
 4. 如果交换的过程中，arr[i] == arr[arr[i]]，说明遇到了重复值，返回即可。
    如下图：
+   
+   ![image-20210220182656143](【剑指offer01】-数组/image-20210220182656143.png)
 
-![image-20210220171754926](【Git-02】Git深入之FeatureBranching/image-20210220171754926.png)
 
-```
+   ```java
 public boolean duplicate(int[] nums, int length, int[] duplication) {
     if (nums == null || length <= 0)
         return false;
@@ -97,7 +96,13 @@ private void swap(int[] nums, int i, int j) {
     nums[i] = nums[j];
     nums[j] = t;
 }
-```
+
+   ```
+
+   
 
 时间复杂度：O(N)
 空间复杂度：O(1)
+
+
+
