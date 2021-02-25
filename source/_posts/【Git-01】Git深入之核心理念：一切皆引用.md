@@ -98,6 +98,10 @@ Date: Sun May 5 21:48:49 2019 +0800
 
 ### 常用概念：branch 和 master
 
+```
+git branch feature1
+```
+
 - branch 的含义是分支，指的是仓库结构出现分叉时的不同的「叉」本质上，git 的 branch 是引用(reference)，即指向某个 commit 的指针 直观感觉的 branch:
 
 
