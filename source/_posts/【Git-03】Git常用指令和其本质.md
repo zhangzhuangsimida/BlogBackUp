@@ -9,6 +9,8 @@ tags:
 
 # 【Git-03】Git常用指令和其本质
 
+
+
 ## checkout
 
 - 移动 HEAD，让它指向某个 commit 或某个 branch。
@@ -16,9 +18,145 @@ tags:
 
 <!--more-->
 
+`checkout`很好的体现了Git 一切皆引用的思想
+
+### 移动 HEAD，让它指向某个 commit 或某个 branch。
+
+**指向指定分支**：
+
+执行一下
+
+```bash
+git checkout feature1
+```
+
+打开`./git/HEAD`文件，你可以看到里面的内容是：`ref: refs/heads/master`
+
+**你也可以指向某个commit**：
+
+执行`git log` 打印commit记录，并找到一个想要指向的 commit 的 hash 值
+
+```bash
+$ git log
+
+...
+
+commit ca9dd5566cbc6bc599d1ca88e3e6cf9b8ce38cc2
+Author: zhangzhuang <xx@xx.com>
+Date:   Thu Feb 25 14:44:43 2021 +0800
+
+    first commit
+```
+
+在此执行 checkout 指定想指向的hash 值
+
+```bash 
+$ git checkout ca9dd
+Note: checking out 'ca9dd'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -b with the checkout command again. Example:
+
+  git checkout -b <new-branch-name>
+
+```
+
+这次再打开`./git/HEAD`文件，你可以看到里面的内容是：`ca9dd5566cbc6bc599d1ca88e3e6cf9b8ce38cc2`
+
+对于文件系统而言，HEAD文件中指定的值就代表了你要想指向的文件。这个值就是所谓的引用，方便且轻便（一个值只有几个字节）。
+
+### checkout --detach :让 HEAD 脱离当前 branch，直接指向下面的 commit。
+
+执行 `git log` 的时候 你会发现 HEAD 一般情况都是 先指向 branch 的引用， branch 再指向指定 commit的引用
+
+```bash
+$ git log
+commit c95c8ca4a1ff8d2b76be1743aec9230e5b1a6914 (HEAD -> feature1)
+Author: x x <xx@doushen.com>
+Date:   Thu Feb 25 18:54:17 2021 +0800
+
+    虚拟同事的第一个commit
+```
+
+差不多就像这样：
+
+![image-20210226172302250](【Git-03】Git常用指令和其本质/image-20210226172302250.png)
+
+如果我们想直接指向 指定的commit 引用，脱离branch引用，你可以
+
+```
+$ git checkout c95c8c（这个id是 这个分支最后的一个commit的 ，也就是当前 feature1 指向的）
+```
+
+就会变成这样
+
+![image-20210226180444803](【Git-03】Git常用指令和其本质/image-20210226180444803.png)
+
+```bash
+$ git log
+commit c95c8ca4a1ff8d2b76be1743aec9230e5b1a6914 (HEAD, feature1)
+Author: xx <xx@xx.com>
+Date:   Thu Feb 25 18:54:17 2021 +0800
+
+    虚拟同事的第一个commit
+```
+
+原本的`HEAD -> feature1`变成了`HEAD, feature1`,HEAD 不再指向 分支 feature1，它脱钩了。
+
+当我们指向远端镜像`origin/master`的时候,因为远端引用是一种特殊的引用，无法用HEAD指向，所以当我们执行
+
+```bash
+git checkout origin/master
+```
+
+HEAD 依然会滑落向 commit的 id
+```bash
+$  git log
+commit bf7b8810f496a4700034d9504ac35e0d54de4156 (HEAD, origin/master, origin/HEAD, master)
+Merge: 885f078 c95c8ca
+Author: zhangzhuang <xx@xx.com>
+Date:   Thu Feb 25 18:55:47 2021 +0800
+
+    Merge branch 'feature1'
+```
+
+![image-20210226180916853](【Git-03】Git常用指令和其本质/image-20210226180916853.png)
+
+打开文件`.git/HEAD`你就会看到`bf7b8810f496a4700034d9504ac35e0d54de4156`
+
+所以HEAD 从你指向的 `origin/master`滑落后你仍然能看到`git log`内容，就是因为HEAD文件中存储了相应的引用，当我们使用指令的时候它就会读这个文件，它就像运行时程序的内存一样，只不过它是直接存储在文件里实时读取的，
+
 ## rebase
 
-把当前 commit(以及它之前的 commits)应用到指定的需要 rebase 的 commit 上。
+![image-20210226182754526](【Git-03】Git常用指令和其本质/image-20210226182754526.png)
+
+当我们在本地用 新分支 feature1 开发的时候 master分支 可能有别人提交的提交 `commit a`
+
+我们需要做的事是
+
+```bash
+$ git checkout master
+$ git merge feature1 
+$ git push origin master
+```
+
+但是`merge`操作是会 产生一个新的`commit 6` ，它是由 `commit a` 和`commit  5`两个父提交产生的
+
+有时候我们会希望像下图这样让历史这条线合成一条
+
+![image-20210226183621407](【Git-03】Git常用指令和其本质/image-20210226183621407.png)
+
+我们只需要执行  
+
+```bash
+$ git rebase master
+```
+
+ **总结：**把当前 commit(以及它之前的 commits)应用到指定的需要 rebase 的 commit 上。
 
 > Git 中的每一个 commit 都是不会改变的，所以 rebase 之后的每个 commit 都 是新产生的，而不是对原先的 commit 进行「修改」
 
@@ -26,7 +164,7 @@ tags:
 
 
 
-虽然 4‘ 和 5’
+虽然master 分支的 commit  4‘ 和 5’看起来和 feature1的 4，5是一样的内容，但是却不是 相同的commit  而是 原版 `feature1` 分支 4和5的镜像（copy），
 
 ## rebase 冲突
 
