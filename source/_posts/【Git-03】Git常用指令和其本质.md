@@ -156,6 +156,8 @@ $ git push origin master
 $ git rebase master
 ```
 
+当然，如果你所在的`feature1`分支完全超前于` master`分支，`rebase`是不会起任何作用的，你也不需要rebase
+
  **总结：**把当前 commit(以及它之前的 commits)应用到指定的需要 rebase 的 commit 上。
 
 > Git 中的每一个 commit 都是不会改变的，所以 rebase 之后的每个 commit 都 是新产生的，而不是对原先的 commit 进行「修改」
