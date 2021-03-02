@@ -166,11 +166,17 @@ $ git rebase master
 
 
 
-虽然master 分支的 commit  4‘ 和 5’看起来和 feature1的 4，5是一样的内容，但是却不是 相同的commit  而是 原版 `feature1` 分支 4和5的镜像（copy），
+虽然master 分支的 `commit  4‘ 和 5’`看起来和 feature1的 `coomit 4，5`是一样的内容，但是却不是 相同的commit  而是 原版 `feature1` 分支 	`4`和`5`的镜像（copy）
+
+比如你在 `commit 5`再建立一个分支 `feature2`，再将`feature1` rebase到 `master`分支, `feature2`分支也不会消失，因为原来的commit都还存在
+
+![image-20210302155354246](【Git-03】Git常用指令和其本质/image-20210302155354246.png)
 
 ## rebase 冲突
 
-rebase 的冲突解决方法和 merge 冲突一样，只是把 git merge --continue 改成 git rebase --continue 就行了
+`rebase` 的冲突解决方法和` merge` 冲突一样，只是把 `git merge --continue` 改成` git rebase --continue` 就行了
+
+解决完冲突的文件 `add`进暂存区即可。
 
 
 
@@ -180,28 +186,63 @@ rebase 的冲突解决方法和 merge 冲突一样，只是把 git merge --conti
 
 把当前 branch 指向指定的 commit。
 
-- git reset 指定commit
-   移动到指定 commit，并保留 working tree 的内容
+![image-20210302160027351](【Git-03】Git常用指令和其本质/image-20210302160027351.png)
 
-- git reset --hard 指定commit 
+- `git reset 指定commitId `
+   移动到指定 commit，并保留 working tree 的内容，
 
-  移动到指定 commit，并重置 working tree
+   （也就是代码仍然保留，会提示你有内容需要提交）
+   
+- `git reset 指定commitId --hard` 指定commit 
 
+  移动到指定 commit，并重置 working tree，
+  
+  你的HEAD 分支都指向这个commit，代码也不会保留
 
+我们可以reset到不同的引用上去：
+
+1. 我们可以`reset`到指定commit
+
+	```bash
+	git reset 4
+	git reset 5
+	```
+
+	此时`HEAD`仍然指向`feature1`，因为`reset`会带走`branch`
+	
+2. 我们可以`rese`到其他分支，但是因为reset会带走分，分支无法指向分支，它的指向会滑落到指定commit
+
+   ```bash
+   git reset master
+   ```
+
+   ![image-20210302193014047](【Git-03】Git常用指令和其本质/image-20210302193014047.png)
+
+   指向不能被指的`origin/master`，当然也会滑落到具体`commit`
+
+   ![image-20210302193134857](【Git-03】Git常用指令和其本质/image-20210302193134857.png)
+
+3. 如果我们指定`checkout`某个`commit`让`HEAD`和`feature1`脱钩，再做`reset feature1`它会指向`feature1`指向的` commit a`，并没有指向`feature1`。
+
+   `reset` 的目标是纠正下面所指向的那个分支，让它指向别的某个提交。
+
+   `reset` 会移动`HEAD`但它的目标不是移动`HEAD`·而是移动`HEAD`所指向的`branch`
+
+   
+
+   ![image-20210302193537867](【Git-03】Git常用指令和其本质/image-20210302193537867.png)
+
+   ![image-20210302193817642](【Git-03】Git常用指令和其本质/image-20210302193817642.png)
 
 ## reset 和 **checkout** 的区别
 
- 它们都是移动 HEAD，但 chekcout 移动的时候是自己移动，不带着 branch 一起;
-
-而 reset 会带着 branch 一起移动
-
-
+ 它们都是移动 HEAD，但 chekcout 移动的时候是自己移动，不带着 branch 一起,而 reset 会带着 branch 一起移动。
 
 
 
 ## 提交过的东⻄写错了
 
-1. 最新的一条内容需要修改:
+1. 最新的一条内容需要修改（刚提交完就写错了）:
 
    ```bash
     git commit --amend

@@ -60,12 +60,16 @@ EMAS平台中的应用即您实际端应用的映射，您需要在EMAS控制台
 
    ![image-20210202165306861](Sophix/image-20210202165306861.png)
 
+经典模式是用代码开发
+
+低代码模式是用可视化工具开发，支持平台为小程序和H5
+
 ## SDK集成
 
 > 说明：SDK下载请参见[EMAS 快速入门>下载SDK](https://help.aliyun.com/document_detail/169962.html)。
 
 - [Android SDK稳健接入（推荐使用）](https://help.aliyun.com/document_detail/61082.html)
-- [Android SDK快速接入（不推荐使用）](https://help.aliyun.com/document_detail/53240.html)
+- [Android SDK快速接入（不推荐使用）](https://help.aliyun.com/document_detail/53240.html)只支持9.0一下设备，9.0以上有崩溃风险没有使用Application代理，直接初始化了Sophix
 - iOS SDK接入方式：请接入技术支持钉钉群获取，参见[技术支持](https://help.aliyun.com/document_detail/173248.html)
 
 ***我们采用的是稳健接入（兼容Android 9.0）***
@@ -89,7 +93,7 @@ app的build.gradle文件，添加如下配置：
 
 添加maven仓库地址：
 
-```
+```groovy
 repositories {
    maven {
        url "http://maven.aliyun.com/nexus/content/repositories/releases"
@@ -99,7 +103,7 @@ repositories {
 
 Module/build.gradle 添加依赖
 
-```
+```groovy
 android {
     ......
     defaultConfig {
@@ -147,7 +151,7 @@ Sophix SDK使用到以下权限，使用maven依赖或者aar依赖可以不用�
 
 在`AndroidManifest.xml`中间的`application`节点下添加如下配置：
 
-```
+```xml
 <meta-data
 android:name="com.taobao.android.hotfix.IDSECRET"
 android:value="App ID" />
@@ -168,7 +172,7 @@ android:value="RSA密钥" />
 
 #### 混淆 (注意修复时打开mapping的注释，保存好mapping文件)
 
-```
+```properties
 #基线包使用，生成mapping.txt
 -printmapping mapping.txt
 #生成的mapping.txt在app/build/outputs/mapping/release路径下，移动到/app路径下
@@ -190,7 +194,7 @@ android:value="RSA密钥" />
 
 具体就是，用户自行加入以下这个类：
 
-```
+```java
 package com.my.pkg;
 import android.app.Application;
 import android.content.Context;
@@ -259,7 +263,7 @@ SophixManager.getInstance().queryAndLoadNewPatch();
 
 这其中，关键一点是：
 
-```
+```java
     @Keep
     @SophixEntry(MyRealApplication.class)
     static class RealApplicationStub {}
@@ -271,7 +275,7 @@ SophixEntry应指定项目中原先真正的Application（原项目里applicatio
 
 然后，在proguard文件里面需要加上下面内容：
 
-```
+```java
 -keepclassmembers class com.my.pkg.MyRealApplication {
     public <init>();
 }
@@ -282,7 +286,7 @@ SophixEntry应指定项目中原先真正的Application（原项目里applicatio
 
 最后，需要把AndroidManifest里面的application改为这个新增的SophixStubApplication类：
 
-```
+```xml
     <application
         android:name="com.my.pkg.SophixStubApplication"
         ... ...>
@@ -395,6 +399,8 @@ SophixEntry应指定项目中原先真正的Application（原项目里applicatio
 1. **调试工具下载**
 
    单击[Android调试工具下载地址](http://ams-hotfix-repo.oss-cn-shanghai.aliyuncs.com/hotfix_debug_tool-release.apk)，将下载的调试工具安装到您的Android手机上。
+
+   ![image-20210302141239739](Sophix/image-20210302141239739.png)
 
 2. **连接测试的应用**
 
