@@ -198,6 +198,8 @@ $ git rebase master
   移动到指定 commit，并重置 working tree，
   
   你的HEAD 分支都指向这个commit，代码也不会保留
+  
+- 直接执行 `git reset --hard`会指向所在分支最后一次提交                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 
 我们可以reset到不同的引用上去：
 
@@ -241,18 +243,83 @@ $ git rebase master
 
 
 ## 提交过的东⻄写错了
+### commit --amend 修改最后一条提交
 
-1. 最新的一条内容需要修改（刚提交完就写错了）:
+1. 最新的一条内容需要修改（刚提交完就写错了，可以修改你的最新提交）:
 
    ```bash
     git commit --amend
    ```
 
-   > 「修改」只是概念行为，实质上会产生一个新的 commit
+   > 「修改」只是概念行为，实质上会产生一个新的 commit，这个commit id和原来的不同
+   
+   ![image-20210303153346619](【Git-03】Git常用指令和其本质/image-20210303153346619.png)
 
-2. 旧的内容需要修改:
 
-   交互式 rebase
+2. 旧的内容需要修改（如果不是最新的一条commit 而是更早之前的）:
+
+   **交互式 rebase**
+
+   它还是rebase ，但是加了交互式选项，可以更精细的控制rebase过程。
+
+   ![image-20210303155132060](【Git-03】Git常用指令和其本质/image-20210303155132060.png)
+
+   比如我们现在想·`git rebase` 到`origin/master` 上去，自然` 4 `和`5`都要rebase到`origin/master`
+
+   rebase 到指定提交 commit  
+
+   ```bash
+   $ git rebase a7efade -i
+   hint: Waiting for your editor to close the file... 
+   pick 5955bb2 测试交互式rebase 的 feature1 commit
+   pick 9538342 测试交互式rebase 的 feature1 commit2
+   
+   # Rebase a7efade..9538342 onto a7efade (2 commands)
+   #
+   # Commands:
+   # p, pick <commit> = use commit
+   # r, reword <commit> = use commit, but edit the commit message
+   # e, edit <commit> = use commit, but stop for amending
+   # s, squash <commit> = use commit, but meld into previous commit
+   # f, fixup <commit> = like "squash", but discard this commit's log message
+   # x, exec <command> = run command (the rest of the line) using shell
+   # b, break = stop here (continue rebase later with 'git rebase --continue')
+   # d, drop <commit> = remove commit
+   # l, label <label> = label current HEAD with a name
+   # t, reset <label> = reset HEAD to a label
+   # m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+   # .       create a merge commit using the original merge commit's
+   # .       message (or the oneline, if no original merge commit was
+   # .       specified). Use -c <commit> to reword the commit message.
+   #
+   # These lines can be re-ordered; they are executed from top to bottom.
+   #
+   "~/another_git_demo/.git/rebase-merge/git-rebase-todo" 28L, 1247C
+   ```
+    这些内容是给git看的,为了通知git 如何修改这两个提交，我们只要改选项即可，现在我们只想修改`commit 4`(因为改`commit 5 `只需要` commit --amend`)
+
+   ```bash
+   edit 5955bb2 测试交互式rebase 的 feature1 commit
+   pick 9538342 测试交互式rebase 的 feature1 commit2
+   ```
+
+   从刚刚的command注释可以看到 ，` edit <commit> = use commit, but stop for amending` 如果想修改的话会先暂停rebase 。
+
+   执行后：
+
+   ![image-20210303200238804](【Git-03】Git常用指令和其本质/image-20210303200238804.png)
+
+   rebase暂停了，我们需要修改`commit 4`的内容
+
+   所以我们要做的是：
+
+   ```bash
+   
+   ```
+
+   ![image-20210303195824069](【Git-03】Git常用指令和其本质/image-20210303195824069.png)
+
+   **总结：**
 
    ```
    git rebase -i HEAD~4
@@ -260,7 +327,7 @@ $ git rebase master
 
    常用选项:
 
-   - pick 或 p :沿用
+   - pick 或 p :沿用（什么都不改）
    - reword 或 r :修改 commit message
    - edit 或 e :修改 commit 内容
    - drop 或 d :删除
@@ -272,7 +339,7 @@ $ git rebase master
 
    可以用 git revert 指定commit 来撤销。它的原理是创建一个新的 commit，内容是指定 commit 的「相反内容」
 
-## **add -i** 交互式 add
+## add -i 交互式 add
 
 用法:	
 

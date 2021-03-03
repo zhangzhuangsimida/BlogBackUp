@@ -60,4 +60,3 @@ tags:
 - 使用 github:先创建 pull request，在同事审阅完成之后，通过按钮实现在线 merge 
   - pull request 是什么:是开发者对远端仓库的提出的「拉取某个 branch」 的请求
 
-![image-20210224195706942](【Git-02】Git深入之FeatureBranching/image-20210224195706942.png)
