@@ -172,7 +172,7 @@ $ git rebase master
 
 ![image-20210302155354246](【Git-03】Git常用指令和其本质/image-20210302155354246.png)
 
-## rebase 冲突
+#### rebase 冲突
 
 `rebase` 的冲突解决方法和` merge` 冲突一样，只是把 `git merge --continue` 改成` git rebase --continue` 就行了
 
@@ -255,11 +255,7 @@ $ git rebase master
 
 ![image-20210303153346619](【Git-03】Git常用指令和其本质/image-20210303153346619.png)
 
-### 交互式 rebase
-
-
-
-#### 旧的内容需要修改（如果不是最新的一条commit 而是更早之前的commit想修改）:
+### 交互式 rebase：旧的内容需要修改（如果不是最新的一条commit 而是更早之前的commit想修改）:
 
 它还是rebase ，但是加了交互式选项，可以更精细的控制rebase过程。
 
@@ -415,30 +411,45 @@ Date:   Wed Mar 3 20:14:15 2021 +0800
 
 ![image-20210303195824069](【Git-03】Git常用指令和其本质/image-20210303195824069.png)
 
-#### 删除一个commit
+### revert：如果错误的commit已经被push并且合并到master上去了
 
-**总结：**
+我们不能修改过去的commit，也不能通过增删改替来解决问题了（远端的master尽量不要修改）。
 
+此时应该把这个提交反过来写，使用revert命令意思是倒着把某个提交做了。
+
+```bash
+$ git revert fb03f
 ```
-git rebase -i HEAD~4
-```
 
-常用选项:
+Revert 可以对这次commit执行反向操作（恢复成上次commit的样子），这种反向操作可以指向任何一个提交，可以指向最新的也可以指向老的，因为你并没有修改commit的历史，只是增加了反向操作的 commit。
 
-- pick 或 p :沿用（什么都不改）
+
+
+#### 总结：
+
+1. **push之前想删除一个commit或者修改过去的一个commit**
+
+	```
+	git rebase -i HEAD~4
+	```
+	
+	常用选项:
+
+-  pick 或 p :沿用（什么都不改）
 - reword 或 r :修改 commit message
 - edit 或 e :修改 commit 内容
 - drop 或 d :删除
-- squash 或 s :和上一条融合，并且合并 commit message(可编辑) fixup 或 f :和上一条融合，并且沿用上一条的 commit message
+- squash 或 s :和上一条融合，并且合并 commit message(可编辑) fixup 或 f :和上一条融合 并且沿用上一条的 commit message
 
-
-3. 已经push到master的内容需要删除:
+2. **已经push到master的内容需要删除:**
 
    不能用 rebase，因为 master 上的东⻄是不能强行修改的
 
    可以用 git revert 指定commit 来撤销。它的原理是创建一个新的 commit，内容是指定 commit 的「相反内容」
 
 ## add -i 交互式 add
+
+有时候，我们可能有大量的内容需要提交，但是为了别人阅读的方便，将commit根据不同的功能作用拆分成多个commit，但也许次提交涉及多个文件，甚至某个文件的某几行，无法简单的根据不同的文件来决定拆分顺序，关于这个这种场景就适合使用 add -i （交互式add）。
 
 用法:	
 
@@ -448,23 +459,185 @@ git add -i
 
 常用选项:
 
-- p (patch)
-
-选取块时的常用选项:
-
+- p (patch) 选取块时的常用选项:
 - y:选用当前块
-- n:不用当前块 s:把当前块做自动切分后再重新询问 e:手动选取修改内容
+- n:不用当前块 
+- s:把当前块做自动切分后再重新询问
+-  e:手动选取修改内容
 
-tag
+`git add -i`启动交互式提交，会提示你输入Commands
+
+选择5或者p ，拆分需要提交的代码块
+
+多选择几次1或者R确认我们要修改的文件（README.md）一般git认为你改了几次你就需要输入几次R或者1
+
+之后会让你选择怎么编辑这几个代码块，你可以使用上面的常用代码块来编辑这次你想保留的代码块
+
+
+
+```bash
+$ git add -i
+           staged     unstaged path
+  1:    unchanged       +11/-1 README.md
+
+*** Commands ***
+  1: status	  2: update	  3: revert	  4: add untracked
+  5: patch	  6: diff	  7: quit	  8: help
+  
+  What now> 5
+           staged     unstaged path
+  1:    unchanged       +11/-1 README.md
+  
+Patch update>> R
+           staged     unstaged path
+* 1:    unchanged       +11/-1 README.md
+Patch update>> 
+diff --git a/README.md b/README.md
+index a20a05a..bccdb18 100644
+--- a/README.md
++++ b/README.md
+@@ -1,2 +1,12 @@
+-Feature1 1 改
++11111111
++
++22222222
++
++33333333
++
++44444444
++
++55555555
++
++66666666
+Stage this hunk [y,n,q,a,d,e,?]?   
+y - stage this hunk
+n - do not stage this hunk
+q - quit; do not stage this hunk or any of the remaining ones
+a - stage this hunk and all later hunks in the file
+d - do not stage this hunk or any of the later hunks in the file
+e - manually edit the current hunk
+? - print help
+@@ -1,2 +1,12 @@
+-Feature1 1 改
++11111111
++
++22222222
++
++33333333
++
++44444444
++
++55555555
++
++66666666
+ 
+Stage this hunk [y,n,q,a,d,e,?]? e
+```
+
+编辑需要分块的代码块
+```
+编辑此次需要提交的内容
+# Manual hunk edit mode -- see bottom for a quick guide.
+@@ -1,2 +1,12 @@
+-Feature1 1 改
++33333333
++44444444
+
+# ---
+# To remove '-' lines, make them ' ' lines (context).
+# To remove '+' lines, delete them.
+# Lines starting with # will be removed.
+#
+# If the patch applies cleanly, the edited hunk will immediately be
+# marked for staging.
+# If it does not apply cleanly, you will be given an opportunity to
+# edit again.  If all lines of the hunk are removed, then the edit is
+# aborted and the hunk is left unchanged.
+~                                                                               
+~                                                                               
+~                                                                               
+~                                                                               
+~                                                                               
+~                                                                               
+~                                                                               
+:wq
+```
+
+编辑完成之后，退出vim，再输入q，退出到终端，
+
+此时输入 
+
+- git diff  查看当前有变化但是没有加入暂存区的代码块
+- git diff --staged  查看此时已经起变化且已经提交到暂存区的代码块
+- git show 查看最新的commit和详情
+
+```bash
+$ git diff --staged
+diff --git a/README.md b/README.md
+index a20a05a..794a26c 100644
+--- a/README.md
++++ b/README.md
+@@ -1,2 +1,3 @@
+-Feature1 1 改
++33333333
++44444444
+ 
+$ git diff
+diff --git a/README.md b/README.md
+index 794a26c..bccdb18 100644
+--- a/README.md
++++ b/README.md
+@@ -1,3 +1,12 @@
++11111111
++
++22222222
++
+ 33333333
++
+ 44444444
+ 
++55555555
++
++66666666
+```
+
+
+
+## tag
 
 另一种引用类型。
 
 - 和 branch 区别之一: 不能改变
 - 和 branch 区别之二: 不能被 HEAD 指向
-- 用处: 设置持久标记，例如版本号
+- 用处: 设置持久标记，例如版本号,这样做很安全，因为它不能被指向也不能被改变。
 - origin/master, origin/feature, origin/HEAD 和 tag 有相似之处:也不能从本地 改变位置，也不能被 HEAD 指向
 
-## cherry-pick
+```bash 
+$ git tag tag1 （给当前branch 最后一个commit 打上tag，tag 的名称是tag1 ）
+你可以用tag 直接push
+$ git push origin v1.0
+Enumerating objects: 9, done.
+Counting objects: 100% (9/9), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (5/5), done.
+Writing objects: 100% (7/7), 687 bytes | 687.00 KiB/s, done.
+Total 7 (delta 1), reused 0 (delta 0)
+remote: Powered by GITEE.COM [GNK-5.0]
+To gitee.com:laonaiping/git-demo.git
+ * [new tag]         v1.0 -> v1.0
+
+你也可以增加一点描述或者说注解
+
+$ git tag v1.0.1 -a
+```
+
+
+
+## cherry-pick 摘樱桃
+
+
+
+
 
 用法:
 
@@ -478,9 +651,13 @@ git cherry-pick commit1 commit2
 
 - git cherry-pick 这两个 commit
 
+<img src="【Git-03】Git常用指令和其本质/image-20210308165213075.png" alt="image-20210308165213075" style="zoom:50%;" />
 
+<img src="【Git-03】Git常用指令和其本质/image-20210308165241526.png" alt="image-20210308165241526" style="zoom:50%;" />
 
 ## reflog
+
+查看我们引用的历史
 
 用法:
 
@@ -488,7 +665,15 @@ git cherry-pick commit1 commit2
 git reflog <branch>
 ```
 
-![image-20210225142639308](【Git-03】Git常用指令和其本质/image-20210225142639308.png)
+<img src="【Git-03】Git常用指令和其本质/image-20210225142639308.png" alt="image-20210225142639308" style="zoom:50%;" />
 
 用途:
- 查看指定的引用(HEAD 或 branch)的移动历史，从而找到之前的某个特定 commit
+
+​	查看指定的引用(HEAD 或 branch)的移动历史，从而找到之前的某个特定 commit
+
+​	什么参数都不加，是为了看Head这个引用的log
+
+ 	你也可以在`.git/logs `里面的文件中国找到 HEAD ，分支和远端分支的移动历史
+
+​	<img src="【Git-03】Git常用指令和其本质/image-20210308170145196.png" alt="image-20210308170145196" style="zoom:50%;" />
+
