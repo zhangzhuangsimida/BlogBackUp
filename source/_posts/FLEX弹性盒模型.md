@@ -349,4 +349,8 @@ flex-direction: column;
 flex-wrap: wrap-reverse;
 ```
 
-###  
+###  flex-flow
+
+`flex-flow` 是 `flex-direction` 与 `flex-wrap` 的组合简写模式。
+
+下面是从右向左排列，换行向上拆分行。
