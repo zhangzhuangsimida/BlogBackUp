@@ -56,7 +56,7 @@ Hash ，也成散列，Hash英文本意即为切碎。
 
 基本原理：把**任意长度**的输入通过Hash算法变成**固定长度**的输出。
 
-这个**映射规则**就是对应的接口，而原始数据**映射后的二进制串**就是Hash值。
+这个**映射规则**就是对应的Hash算法，而原始数据**映射后的二进制串**就是Hash值。
 
 
 
@@ -143,7 +143,7 @@ HashMap的静态内部类，实现了Map.Entry接口
     }
 ```
 
-接口 Map.Entry
+接口 Map.Entry key ：set Value：set+get
 
 ```java
     interface Entry<K, V> {
@@ -346,7 +346,18 @@ threshold = capacity * loadFactor
 
  ### 2.  构造方法分析
 
-两参数
+##### 1. 两参数：
+
+- 入参： 
+  - HashTable能存储的元素最大值 initialCapacity，
+  - 负载因子的值loadFactor
+- 方法体：
+  - 校验：
+    - HashTable能存储的元素最大值initialCapacity，必须大于 0 ，最大值也就是 MAX_CAPACITY,不能超过，超过久服之为MAX_CAPACITY（1<<30）
+    - 负载因子的值 loadFactor必须大于0，我们一般就用默认值0.75
+  - 赋值：
+    -  给负载因子赋值loadFactor
+    -  给扩容阈赋值，扩容阈赋值通过tableSizeFor方法计算而出，返回的值大于等于当前capacity值，且为2的倍数
 
 ```java
 		public HashMap(int initialCapacity, float loadFactor) {
@@ -363,7 +374,8 @@ threshold = capacity * loadFactor
                                                loadFactor);
         //给负载因子赋值
         this.loadFactor = loadFactor;
-        // 返回一个大于等于当前值cap值的一个数字，并且这个数字一定是2的次方数
+        //扩容阈值 =tableSizeFor的返回值
+				//tableSizeFor  返回一个大于等于当前值cap值的一个数字，并且这个数字一定是2的次方数
         this.threshold = tableSizeFor(initialCapacity);
     }
 ```
@@ -387,20 +399,22 @@ threshold = capacity * loadFactor
     }
 ```
 
-一参数：套娃了两参数方法
+##### 2. 一参数：套娃了两参数方法
 
 ```java
  public HashMap(int initialCapacity) {
         this(initialCapacity, DEFAULT_LOAD_FACTOR);
 }
 ```
-无参数：默认，只给负载因子赋值默认值
+##### 3. 无参数：默认，只给负载因子赋值默认值
+
 ```java
  public HashMap() {
         this.loadFactor = DEFAULT_LOAD_FACTOR; // all other fields defaulted
  }
 ```
-传Map作为参数
+##### 4. 传Map作为参数
+
 ```java
  public HashMap(Map<? extends K, ? extends V> m) {
         this.loadFactor = DEFAULT_LOAD_FACTOR;
@@ -414,43 +428,79 @@ threshold = capacity * loadFactor
 		// 其实内部调用的是 putVal方法,也是个套娃方法
 		// 我们知道Node存储的hash 值，是通过key的hash值经过扰动函数后产生的，这个扰动函数就是调用putVal时调用的 hash（key）
 		public V put(K key, V value) {
+      			//putVal 之前， key会先调用扰动函数 
         		return putVal(hash(key), key, value, false, true);
 		}
-		// 扰动函数： 作用：让key的Hash值的 高16位也参与路由的运算
+		/**
+		* 扰动函数： 作用：让key的Hash值的 高16位也参与运算，否则若HashTable的长度很短 （16），
+		* 根据路由算法
+		*（length - 1）& hash，高位的数无法参与运算（高位都是0，怎么与& 都是0），
+		* 所以必须经过扰动让高位参与进来，增加散列性。
+		* 
+		* 异或：相同则返0，不同返1
+		* hash = 0b 0010 0101 1010 1100 0011 1111 0010 1110
+		* 0b 0010 0101 1010 1100 0011 1111 0010 1110  :key的Hash值
+		* ^ 异或
+		*	0b 0000 0000 0000 0000 0010 0101 1010 1100	：key的Hash 右移16位，让高位参与运算	
+		*	0b 0010 0101 1010 1100 0001 1010 1000 0010
+		*
+		*
+		*/
+ 
     static final int hash(Object key) {
         int h;
         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
 
-		//
+		// hash，key，value不必说
+		//onlyIfAbsent 如果这个key已经有值了，就不要再改变了，我们通常都传false，没有key就插入，有
+	 //key就修改value
     final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
+      // tab ：引用当前HashMap的散列表
+     	// p： 当前散列表的元素
+      // n：表示散列表数组的长度
+      // i： 表示路由寻址的结果
         Node<K,V>[] tab; Node<K,V> p; int n, i;
+      	
+      	// 延迟初始化逻辑，第一次调用putVal时会初始化HashMap中最耗内存的散列表
         if ((tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
+      
+      	//最简单的一种情况，寻址找到的桶位，刚好是null，这时直接将当前k-v => node 扔进去就可以了
         if ((p = tab[i = (n - 1) & hash]) == null)
             tab[i] = newNode(hash, key, value, null);
         else {
+          // e： 不为null的话，找到了一个蛋清要插入的key-value一致的key的元素，（临时node）
+          // k： 表示临时的一个key
             Node<K,V> e; K k;
+          // 表示桶位中的该元素，与你当前插入的元素的key完全一致，表示后续需要替换操作
             if (p.hash == hash &&
                 ((k = p.key) == key || (key != null && key.equals(k))))
                 e = p;
-            else if (p instanceof TreeNode)
+            else if (p instanceof TreeNode)// 红黑树
                 e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
             else {
+              // 条件成立的话，迭代到最后一个元素了，也没找到一个与你要插入的key一致的node，说明需要加入到当前链表的末尾
                 for (int binCount = 0; ; ++binCount) {
                     if ((e = p.next) == null) {
                         p.next = newNode(hash, key, value, null);
+                      	//条件成立的话，说明当前链表的长度达到树化标准了，需要进行树化
                         if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                          	// 树化操作
                             treeifyBin(tab, hash);
                         break;
                     }
+                  
+                    //条件成立的话，说明找到了相同key的node元素，需要进行替换操作
                     if (e.hash == hash &&
                         ((k = e.key) == key || (key != null && key.equals(k))))
                         break;
+                  	//跳出循环后替换
                     p = e;
                 }
             }
+          //e 不等于null，条件成立说明，找到了一个与你插入元素key完全一致的数据，需要进行替换
             if (e != null) { // existing mapping for key
                 V oldValue = e.value;
                 if (!onlyIfAbsent || oldValue == null)
@@ -459,7 +509,10 @@ threshold = capacity * loadFactor
                 return oldValue;
             }
         }
+      	// 散列表结构背修改的次数（替换Node元素的value不计数）
         ++modCount;
+      
+      //插入新元素size自增，如果自增后的值大于扩容阈值，则触发扩容。
         if (++size > threshold)
             resize();
         afterNodeInsertion(evict);
