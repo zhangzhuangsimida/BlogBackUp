@@ -467,21 +467,23 @@ threshold = capacity * loadFactor
         if ((tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
       
-      	//最简单的一种情况，寻址找到的桶位，刚好是null，这时直接将当前k-v => node 扔进去就可以了
+      	//1. 最简单的一种情况，寻址找到的桶位，刚好是null，这时直接将当前k-v => node 扔进去就可以了
         if ((p = tab[i = (n - 1) & hash]) == null)
             tab[i] = newNode(hash, key, value, null);
         else {
           // e： 不为null的话，找到了一个蛋清要插入的key-value一致的key的元素，（临时node）
           // k： 表示临时的一个key
             Node<K,V> e; K k;
-          // 表示桶位中的该元素，与你当前插入的元素的key完全一致，表示后续需要替换操作
+          //2.表示该桶位中的第一个元素与你当前插入的node元素的key一致，表示后续要进行替换操作
             if (p.hash == hash &&
                 ((k = p.key) == key || (key != null && key.equals(k))))
                 e = p;
+					// 3.表示当前桶位已经树化了，如果树化调用putTreeVal
             else if (p instanceof TreeNode)// 红黑树
                 e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+          // 4.当前捅位是一个链表
             else {
-              // 条件成立的话，迭代到最后一个元素了，也没找到一个与你要插入的key一致的node，说明需要加入到当前链表的末尾
+              // 4.1 条件成立的话，迭代到最后一个元素了，也没找到一个与你要插入的key一致的node，说明需要加入到当前链表的末尾（尾插法）
                 for (int binCount = 0; ; ++binCount) {
                     if ((e = p.next) == null) {
                         p.next = newNode(hash, key, value, null);
@@ -492,7 +494,7 @@ threshold = capacity * loadFactor
                         break;
                     }
                   
-                    //条件成立的话，说明找到了相同key的node元素，需要进行替换操作
+                    //4.2条件成立的话，说明找到了相同key的node元素，需要进行替换操作
                     if (e.hash == hash &&
                         ((k = e.key) == key || (key != null && key.equals(k))))
                         break;
@@ -526,14 +528,371 @@ threshold = capacity * loadFactor
 
  ### 4. HashMap resize 扩容方法分析（核心）
 
+当在table长度位16中的元素移到table长度位32的table中的时候；我们可以知道，原来在15这个槽位的元素的hash()值的后四位一定是1111（因为跟1111即table长度-1 进行与运算得到了1111）。所以所以当table长度变为32的时候，原来在15这个槽位的元素要么还在15这个槽位，要么在31这个操作（因为原来15这个槽位的元素后五位一定是11111或者01111，跟 11111即table新长度-1 进行与运算一定得到 01111或者11111）
 
+
+
+<img src="HashMap原理/image-20210330113906260.png" alt="image-20210330113906260" style="zoom:50%;" />
+
+```java
+/**
+ * 对table进行初始化或者扩容。
+ * 如果table为null，则对table进行初始化
+ * 如果对table扩容，因为每次扩容都是翻倍，与原来计算（n-1）&hash的结果相比，节点要么就在原来的位置，要么就被分配到“原位置+旧容量”这个位置。
+ */
+    final Node<K,V>[] resize() {
+        Node<K,V>[] oldTab = table;
+        // oldCap表示扩容之前table数组的长度
+        int oldCap = (oldTab == null) ? 0 : oldTab.length;
+        // oldThr表示本次扩容之前的阈值，触发本次扩容操作的阈值
+        int oldThr = threshold;
+        // newCap：表示扩容之后table数组的大小； newThr表示扩容之后，下次触发扩容的阈值
+        int newCap, newThr = 0;
+        //===================给newCap和newThr赋值start=============================
+        // oldCap大于零，说明之前已经初始化过了（hashmap中的散列表不是null），要进行正常的扩容操作
+        if (oldCap > 0) {
+            // 已经最大值了，不再扩容了
+            if (oldCap >= MAXIMUM_CAPACITY) {
+                threshold = Integer.MAX_VALUE;
+                return oldTab;
+            }
+            // （1）进行翻倍扩容(假如旧的oldCap为8， < DEFAULT_INITIAL_CAPACITY，那么此条件不成立newThr将不会赋值)
+            else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
+                    oldCap >= DEFAULT_INITIAL_CAPACITY)
+                newThr = oldThr << 1; // double threshold
+        }
+        // （2）
+        // oldCap == 0（说明hashmap中的散列表是null）且oldThr > 0 ；下面几种情况都会出现oldCap == 0,oldThr > 0
+        // 1.public HashMap(int initialCapacity);
+        // 2.public HashMap(Map<? extends K, ? extends V> m);并且这个map有数据
+        // 3.public HashMap(int initialCapacity, float loadFactor);
+        else if (oldThr > 0) // initial capacity was placed in threshold
+            newCap = oldThr;
+        // oldCap == 0, oldThr == 0
+        // public HashMap();
+        else {               // zero initial threshold signifies using defaults
+            newCap = DEFAULT_INITIAL_CAPACITY;
+            newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+        }
+
+        // 对应上面（1）不成立或者（2）成立的情况
+        if (newThr == 0) {
+            float ft = (float)newCap * loadFactor;
+            newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
+                    (int)ft : Integer.MAX_VALUE);
+        }
+        //===================给newCap和newThr赋值end=============================
+        threshold = newThr;
+        @SuppressWarnings({"rawtypes","unchecked"})
+        Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
+        table = newTab;
+        if (oldTab != null) {
+            for (int j = 0; j < oldCap; ++j) {
+                Node<K,V> e;
+                // 头结点不为空
+                if ((e = oldTab[j]) != null) {
+                    // 将对应的桶位指向null，方便jvm回收
+                    oldTab[j] = null;
+
+                    // 1.如果只有一个节点
+                    if (e.next == null)
+                        newTab[e.hash & (newCap - 1)] = e;
+
+                    // 2.树化了
+                    else if (e instanceof TreeNode)
+                        ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
+
+                    // 3.还是链表
+                    else { // preserve order
+
+
+                        // 低位链表：存放在扩容之后的数组下标的位置，与当前数组下标位置一致的元素
+                        // 高位链表：存放在扩容之后的数组下标的位置为当前数组下标位置+ 扩容之前数组长度的元素
+                        Node<K,V> loHead = null, loTail = null;
+                        Node<K,V> hiHead = null, hiTail = null;
+
+
+
+                        Node<K,V> next;
+                        do {
+                            next = e.next;
+
+                            // 比如e.hash只能为两种可能  1 1111 或者 0 1111 ， oldCap 为 10000
+
+                            if ((e.hash & oldCap) == 0) {
+                                if (loTail == null)
+                                    loHead = e;
+                                else
+                                    loTail.next = e;
+                                loTail = e;
+                            }
+                            else {
+                                if (hiTail == null)
+                                    hiHead = e;
+                                else
+                                    hiTail.next = e;
+                                hiTail = e;
+                            }
+                        } while ((e = next) != null);
+
+                        // 如果低位链表有数据
+                        if (loTail != null) {
+                            loTail.next = null;
+                            newTab[j] = loHead;
+                        }
+                        // 如果高位链表有数据
+                        if (hiTail != null) {
+                            hiTail.next = null;
+                            newTab[j + oldCap] = hiHead;
+                        }
+                    }
+                }
+            }
+        }
+        return newTab;
+    }
+```
 
 ### 5. HashMap get 方法分析
+```java
+public V get(Object key) {
+        Node<K,V> e;
+        return (e = getNode(hash(key), key)) == null ? null : e.value;
+    }
 
-
-
+   final Node<K,V> getNode(int hash, Object key) {
+        // tab：引用当前hashmap的table
+        // first：桶位中的头元素
+        // n：table的长度
+        // e：是临时Node元素
+        // k：是key的临时变量
+        Node<K,V>[] tab; Node<K,V> first, e; int n; K k;
+       
+       // 1.如果哈希表为空，或key对应的桶为空，返回null
+        if ((tab = table) != null && (n = tab.length) > 0 &&
+                (first = tab[(n - 1) & hash]) != null) {
+            
+            // 2.这个桶的头元素就是想要找的
+            if (first.hash == hash && // always check first node
+                    ((k = first.key) == key || (key != null && key.equals(k))))
+                return first;
+            
+            // 说明当前桶位不止一个元素，可能是链表，也可能是红黑树
+            if ((e = first.next) != null) {
+                // 3.树化了
+                if (first instanceof TreeNode)
+                    return ((TreeNode<K,V>)first).getTreeNode(hash, key);
+                
+                // 4.链表
+                do {
+                    if (e.hash == hash &&
+                            ((k = e.key) == key || (key != null && key.equals(k))))
+                        return e;
+                } while ((e = e.next) != null);
+            }
+        }
+        return null;
+    }
+```
 ### 6. HashMap remove 方法分析
+
+```java
+    public V remove(Object key) {
+        Node<K,V> e;
+        return (e = removeNode(hash(key), key, null, false, true)) == null ?
+                null : e.value;
+    }    
+
+    final Node<K,V> removeNode(int hash, Object key, Object value,
+                               boolean matchValue, boolean movable) {
+        // tab：引用当前hashmap的table
+        // p：当前的node元素
+        // n：当前的散列表数组长度
+        // index：表示寻址结果
+        Node<K,V>[] tab; Node<K,V> p; int n, index;
+
+        // 1.如果数组table为空或key映射到的桶为空，返回null。
+        if ((tab = table) != null && (n = tab.length) > 0 &&
+                (p = tab[index = (n - 1) & hash]) != null) {
+
+            // node：查找到的结果
+            // e：当前Node的下一个元素
+            Node<K,V> node = null, e; K k; V v;
+
+            // 2.桶位的头元素就是我们要找的
+            if (p.hash == hash &&
+                    ((k = p.key) == key || (key != null && key.equals(k))))
+                node = p;
+
+            else if ((e = p.next) != null) {
+                // 3.树化了
+                if (p instanceof TreeNode)
+                    node = ((TreeNode<K,V>)p).getTreeNode(hash, key);
+                // 4.链表中
+                else {
+                    do {
+                        if (e.hash == hash &&
+                                ((k = e.key) == key ||
+                                        (key != null && key.equals(k)))) {
+                            node = e;
+                            break;
+                        }
+                        p = e;
+                    } while ((e = e.next) != null);
+                }
+            }
+
+            // 如果node不为null，说明按照key查找到想要删除的数据了
+            if (node != null && (!matchValue || (v = node.value) == value ||
+                    (value != null && value.equals(v)))) {
+                // 是树，删除节点
+                if (node instanceof TreeNode)
+                    ((TreeNode<K,V>)node).removeTreeNode(this, tab, movable);
+                // 删除的桶的第一个元素
+                else if (node == p)
+                    tab[index] = node.next;
+                // 不是第一个元素
+                else
+                    p.next = node.next;
+                ++modCount;
+                --size;
+                afterNodeRemoval(node);
+                return node;
+            }
+        }
+        return null;
+    }
+```
 
 
 
 ### 7. HashMap replace方法分析
+
+```java
+    @Override
+    public boolean replace(K key, V oldValue, V newValue) {
+        Node<K,V> e; V v;
+        if ((e = getNode(hash(key), key)) != null &&
+                ((v = e.value) == oldValue || (v != null && v.equals(oldValue)))) {
+            e.value = newValue;
+            afterNodeAccess(e);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public V replace(K key, V value) {
+        Node<K,V> e;
+        if ((e = getNode(hash(key), key)) != null) {
+            V oldValue = e.value;
+            e.value = value;
+            afterNodeAccess(e);
+            return oldValue;
+        }
+        return null;
+    }
+
+```
+
+### 8. 其它常用方法
+
+#### isEmpty()
+
+```
+/**
+ * 如果map中没有键值对映射，返回true
+ * 
+ * @return <如果map中没有键值对映射，返回true
+ */
+public boolean isEmpty() {
+    return size == 0;
+}
+```
+
+#### putMapEntries()
+
+```
+    final void putMapEntries(Map<? extends K, ? extends V> m, boolean evict) {
+        int s = m.size();
+        if (s > 0) {
+            // table为null，代表这里使用HashMap(Map<? extends K, ? extends V> m)构造函数 或者其它方式实例化hashmap但是还没往里面添加过元素
+            if (table == null) { // pre-size
+                //前面讲到，initial capacity*load factor就是当前hashMap允许的最大元素数目。那么不难理解，s/loadFactor+1即为应该初始化的容量。
+                float ft = ((float)s / loadFactor) + 1.0F;
+                int t = ((ft < (float)MAXIMUM_CAPACITY) ?
+                        (int)ft : MAXIMUM_CAPACITY);
+                if (t > threshold)
+                    threshold = tableSizeFor(t);
+            }
+            //table已经初始化，并且map的大小大于临界值
+            else if (s > threshold)
+                //扩容处理
+                resize();
+            //将map中所有键值对添加到hashMap中
+            for (Map.Entry<? extends K, ? extends V> e : m.entrySet()) {
+                K key = e.getKey();
+                V value = e.getValue();
+                putVal(hash(key), key, value, false, evict);
+            }
+        }
+    }
+```
+
+#### putAll()
+
+```
+/**
+ * 将参数map中的所有键值对映射插入到hashMap中，如果有碰撞，则覆盖value。
+ * @param m 参数map
+ * @throws NullPointerException 如果map为null
+ */
+public void putAll(Map<? extends K, ? extends V> m) {
+    putMapEntries(m, true);
+}
+```
+
+#### clear()
+
+```
+/**
+ * 删除map中所有的键值对
+ */
+public void clear() {
+    Node<K,V>[] tab;
+    modCount++;
+    if ((tab = table) != null && size > 0) {
+        size = 0;
+        for (int i = 0; i < tab.length; ++i)
+            tab[i] = null;
+    }
+}
+```
+
+#### containsValue( Object value)
+
+```
+/**
+ * 如果hashMap中的键值对有一对或多对的value为参数value，返回true
+ *
+ * @param value 参数value
+ * @return 如果hashMap中的键值对有一对或多对的value为参数value，返回true
+ */
+public boolean containsValue(Object value) {
+    Node<K,V>[] tab; V v;
+    //
+    if ((tab = table) != null && size > 0) {
+        //遍历数组table
+        for (int i = 0; i < tab.length; ++i) {
+            //遍历桶中的node
+            for (Node<K,V> e = tab[i]; e != null; e = e.next) {
+                if ((v = e.value) == value ||
+                    (value != null && value.equals(v)))
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+```
+
