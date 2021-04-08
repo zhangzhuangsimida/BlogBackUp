@@ -680,3 +680,56 @@ println(numbers)
 ```
 
 不难发现，每个不可变集合都有对应的可变集合，也就是以mutable为前缀的集合。
+
+##### 集合排序
+
+```kotlin
+val numbers = mutableListOf(1, 2, 3, 4)
+//随机排列元素
+numbers.shuffle()
+println(numbers)
+numbers.sort()//排序，从小打到
+numbers.sortDescending()//从大到小
+println(numbers)
+
+//定义一个Person类，有name 和 age 两属性
+data class Language(var name: String, var score: Int)
+
+val languageList: MutableList<Language> = mutableListOf()
+languageList.add(Language("Java", 80))
+languageList.add(Language("Kotlin", 90))
+languageList.add(Language("Dart", 99))
+languageList.add(Language("C", 80))
+//使用sortBy进行排序，适合单条件排序
+languageList.sortBy { it.score }
+println(languageList)
+//使用sortWith进行排序，适合多条件排序
+languageList.sortWith(compareBy(
+        //it变量是lambda中的隐式参数
+        { it.score }, { it.name })
+)
+println(languageList)
+
+```
+
+### Set和Map
+
+```kotlin
+/**set**/
+val hello = mutableSetOf("H", "e", "l", "l", "o")//自动过滤重复元素
+hello.remove("o")
+//集合的加减操作
+hello += setOf("w", "o", "r", "l", "d")
+println(hello)
+
+/**Map<K, V> 不是 Collection 接口的继承者；但是它也是 Kotlin 的一种集合类型**/
+
+val numbersMap = mapOf("key1" to 1, "key2" to 2, "key3" to 3, "key4" to 1)
+
+println("All keys: ${numbersMap.keys}")
+println("All values: ${numbersMap.values}")
+if ("key2" in numbersMap) println("Value by key \"key2\": ${numbersMap["key2"]}")
+if (1 in numbersMap.values) println("1 is in the map")
+if (numbersMap.containsValue(1)) println(" 1 is in the map")
+```
+
