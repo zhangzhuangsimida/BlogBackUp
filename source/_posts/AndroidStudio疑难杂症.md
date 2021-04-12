@@ -14,12 +14,12 @@ tags:
 1.获取url并下载
 在gradle-wrapper.properties中获取url
 
-#Thu Nov 29 10:32:13 CST 2018
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
 distributionUrl=https\://services.gradle.org/distributions/gradle-4.1-all.zip
+
 ```
 #Thu Nov 29 10:32:13 CST 2018
 distributionBase=GRADLE_USER_HOME
@@ -48,3 +48,4 @@ https://developer.android.google.cn/studio/releases/gradle-plugin#updating-plugi
 原文引用：https://blog.csdn.net/qq_26632895/article/details/108276511
 
 感谢，特记录方便平时使用
+

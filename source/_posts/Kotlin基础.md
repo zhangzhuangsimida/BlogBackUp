@@ -718,7 +718,7 @@ println(languageList)
 /**set**/
 val hello = mutableSetOf("H", "e", "l", "l", "o")//自动过滤重复元素
 hello.remove("o")
-//集合的加减操作
+//集合的加减操作，前面的集合必须是可变集合
 hello += setOf("w", "o", "r", "l", "d")
 println(hello)
 
