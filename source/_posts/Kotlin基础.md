@@ -731,5 +731,84 @@ println("All values: ${numbersMap.values}")
 if ("key2" in numbersMap) println("Value by key \"key2\": ${numbersMap["key2"]}")
 if (1 in numbersMap.values) println("1 is in the map")
 if (numbersMap.containsValue(1)) println(" 1 is in the map")
+		/**
+     * Q1 : 两个具有相同键值对，但顺序不同对Map相等么？为什么？
+     * 无论顺序如何，包含相同键值对对两个Map是相等的
+     */
+    val anotherMap = mapOf("key2" to 2 ,"key1" to 1,"key3" to 3,"key4" to 4)
+    println("anotherMap == numberMap:${anotherMap == numberMap}")
+		// == 会调用 Any 的equals方法
+    anotherMap.equals(numberMap)
+```
+
+#### Q1: 两个具有相同键值对，但顺序不同对Map相等么？为什么？
+
+**A:** 无论顺序如何，包含相同键值对对两个Map是相等的
+
+Debug 进入源码：
+
+```kotlin
+   public boolean equals(Object o) {
+     		// 如果内存地址一致，返回true
+        if (o == this)
+            return true;
+				//如果比较的对象不是Map ，返回 false
+        if (!(o instanceof Map))
+            return false;
+        Map<?,?> m = (Map<?,?>) o;
+     		// Map的size不相等，返回false
+        if (m.size() != size())
+            return false;
+				//遍历两个Map的Key和Value，如果有不相等的，则返回false，否则将会返回true
+        try {
+            Iterator<Entry<K,V>> i = entrySet().iterator();
+            while (i.hasNext()) {
+                Entry<K,V> e = i.next();
+                K key = e.getKey();
+                V value = e.getValue();
+                if (value == null) {
+                    if (!(m.get(key)==null && m.containsKey(key)))
+                        return false;
+                } else {
+                    if (!value.equals(m.get(key)))
+                        return false;
+                }
+            }
+        } catch (ClassCastException unused) {
+            return false;
+        } catch (NullPointerException unused) {
+            return false;
+        }
+        return true;
+    }
+```
+
+#### Q2: 两个具有相同元素，但顺序不同的list相等吗？
+
+不相等，debug进入源码
+
+```java
+    public boolean equals(Object o) {
+		// 如果内存地址一致，返回true
+        if (o == this)
+            return true;
+		//如果比较的对象不是List，返回 false
+
+        if (!(o instanceof List))
+            return false;
+				//初始化迭代器
+        ListIterator<E> e1 = listIterator();
+        ListIterator<?> e2 = ((List<?>) o).listIterator();
+      
+       // 比昂里两个list，如果不同返回false
+        while (e1.hasNext() && e2.hasNext()) {
+            E o1 = e1.next();
+            Object o2 = e2.next();
+            if (!(o1==null ? o2==null : o1.equals(o2)))
+                return false;
+        }
+      //两个list的迭代器hasNext都返回false时候（已经遍历结束），方法返回true，否则返回false（说明list长度不同）
+        return !(e1.hasNext() || e2.hasNext());
+    }
 ```
 
