@@ -590,7 +590,7 @@ Kotlin 中数组是*不型变的（invariant）*。这意味着 Kotlin 不让我
 
 #### 原生类型数组
 
-Kotlin 也有无装箱开销的专门的类来表示原生类型数组: `ByteArray`、 `ShortArray`、`IntArray` 等等。这些类与 `Array` 并没有继承关系，但是它们有同样的方法属性集。它们也都有相应的工厂方法:
+Kotlin 也有无装箱开箱的专门的类来表示原生类型数组: `ByteArray`、 `ShortArray`、`IntArray` 等等。这些类与 `Array` 并没有继承关系，但是它们有同样的方法属性集。它们也都有相应的工厂方法:
 
 ```kotlin
 val x: IntArray = intArrayOf(1, 2, 3)
@@ -789,10 +789,10 @@ Debug 进入源码：
 
 ```java
     public boolean equals(Object o) {
-		// 如果内存地址一致，返回true
+				// 如果内存地址一致，返回true
         if (o == this)
             return true;
-		//如果比较的对象不是List，返回 false
+				//如果比较的对象不是List，返回 false
 
         if (!(o instanceof List))
             return false;

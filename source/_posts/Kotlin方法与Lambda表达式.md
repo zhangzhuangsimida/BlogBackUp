@@ -2,9 +2,9 @@
 title: Kotlin方法与Lambda表达式
 date: 2021-04-25 18:41:00
 categories:
-- kotlin
+- Kotlin
 tags:
-- kotlin
+- Kotlin
  - 方法
 ---
 
@@ -174,7 +174,7 @@ fun magic(): Int {
     }
 
     val v1 = (0..100).random()
-    return foo(v1)
+    return foo(v1) //在方法内部调用了局部方法
 }
 ```
 
@@ -215,16 +215,28 @@ view.setOnClickListener { v -> Toast.makeText(v.context, "Lambda简洁之道", T
 
 语法如下：
 
-无参数的情况：
+##### 无参数的情况：
 
 ```kotlin
 val/var 变量名 = { 操作的代码 }
 ```
 
-有参数的情况
+Eg:
+
+```kotlin
+val test1 = { println("无参数") }
+```
+
+##### 有参数的情况
 
 ```kotlin
 val/var 变量名 : (参数的类型，参数类型，...) -> 返回值类型 = {参数1，参数2，... -> 操作参数的代码 }
+```
+
+Eg: 
+
+```kotlin
+val test3:(Int, Int) -> Int = { a, b -> a + b }
 ```
 
 等价于
@@ -234,6 +246,8 @@ val/var 变量名 : (参数的类型，参数类型，...) -> 返回值类型 = 
 val/var 变量名 = { 参数1 ： 类型，参数2 : 类型, ... -> 操作参数的代码 }
 ```
 
+Eg:
+
 Lambda表达式作为方法中的参数的时候，这里举一个例子：
 
 ```kotlin
@@ -242,9 +256,9 @@ fun test(a : Int, 参数名 : (参数1 ： 类型，参数2 : 类型, ... ) -> �
 }
 ```
 
-Lambda 实践
+#### Lambda 实践 
 
-如何使用it
+##### 如何使用it
 
 认识it
 
@@ -266,7 +280,7 @@ testClosure(1)(2) {
 }
 ```
 
-如何使用下划线_
+##### 如何使用下划线_
 
 在使用Lambda表达式的时候，可以用下划线（_）表示未使用的参数，表示不处理这个参数
 
