@@ -313,6 +313,12 @@ categories: Testing
 ##### 主题配置文件是什么
 > ##### **主题配置文件**指的是theme/next下面的_config.yml文件
 
+#### 使用Typora 编辑Hexo博客时需要的配置：
+
+[Typora](https://www.typora.io/) 是一个好用的Markdown 记事本，记得进行如下配置，即可方便的编写
+
+<img src="Hexo + GitHub Pages + Typora 构建博客 (1) Hexo 的安装/image-20210429134302029.png" alt="image-20210429134302029" style="zoom:50%;" />
+
 ### 问题汇总
 
 #### hexo 本地图片无法加载
@@ -348,6 +354,8 @@ npm install hexo-filter-mermaid-diagrams --save
 打开theme/next/_config.xml
 
 然后搜索关键字mermaid，如果是false，就把它改成true，如果是true，就可以不用修改了
+
+
 
 
 
