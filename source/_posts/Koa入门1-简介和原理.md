@@ -263,6 +263,7 @@ router.get('/async',async (ctx) => {
 - await /async
 - 丰富的中间件
 
+# 进阶篇
 
 
 ## Koa开发RESTful接口
@@ -391,4 +392,88 @@ Eg：浏览器访问：http://localhost:3000/api/api?name=zz1&age=28&pretty=pret
 
 ![image-20210430180620550](Koa入门1-简介和原理/image-20210430180620550.png)
 
-进阶
+## webpack 升级v5
+
+webpack核心概念
+
+- [入口(entry)](https://webpack.docschina.org/concepts/#entry)
+- [输出(output)](https://webpack.docschina.org/concepts/#output)
+- [loader](https://webpack.docschina.org/concepts/#loaders)
+- [插件(plugin)](https://webpack.docschina.org/concepts/#plugins)
+- [模式(mode)](https://webpack.docschina.org/concepts/#mode)
+
+webpack v5版本会对以上代码产生影响，解决方案：
+
+1. 使用webpack v4 webpackcli v3`cnpm i -D webpack@4 webpack-cli@3`
+2. 使用webpack v5 webpackcli v4则采用如下配置
+
+```javascript
+const path = require('path')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const nodeExternals = require('webpack-node-externals')
+
+const webpackconfig = {
+  mode: 'development',
+  entry: {
+    server: path.join(__dirname, 'src/index.js')
+  },
+  output: {
+    filename: '[name].bundle.js',
+    path: path.join(__dirname, './dist')
+  },
+  devtool: 'eval-cheap-source-map'
+  module: {
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        use: {
+          loader: 'babel-loader'
+        },
+        exclude: [path.join(__dirname, 'node_modules')]
+      }
+    ]
+  },
+  plugins: [
+    new CleanWebpackPlugin()
+  ],
+  externals: [nodeExternals()],
+  target: 'node'
+}
+
+module.exports = webpackconfig
+
+```
+
+v5 说明：https://webpack.docschina.org/blog/2020-10-10-webpack-5-release/
+
+v4迁移v5指南：https://webpack.docschina.org/migrate/5/
+
+## 工作目录、合并路由、静态资源服务
+
+工作目录：
+
+
+1. 按照功能模块进行区分
+2. 路由压缩： npm install koa-combine-routers --save
+3. 静态资源： koa-static
+
+
+## Koa开发热加载、ES6语法支持
+
+
+
+# 调试篇
+
+## 调试webpack、配置vscode调试
+
+
+
+#实战篇
+
+## 优化webpack配置、npm构建脚本
+
+
+
+
+
+## Koa应用打包优化
