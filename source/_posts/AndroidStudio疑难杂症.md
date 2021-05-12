@@ -49,3 +49,10 @@ https://developer.android.google.cn/studio/releases/gradle-plugin#updating-plugi
 
 感谢，特记录方便平时使用
 
+# 无法执行Java Main 方法
+
+.idea/gradle.xml 中增加属性
+```
+        <option name="delegatedBuild" value="false" />
+```
+
