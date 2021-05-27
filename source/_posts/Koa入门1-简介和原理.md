@@ -450,15 +450,194 @@ v4迁移v5指南：https://webpack.docschina.org/migrate/5/
 
 ## 工作目录、合并路由、静态资源服务
 
+### 项目地址
+
+https://gitee.com/laonaiping/koa-pro
+
 工作目录：
 
 
 1. 按照功能模块进行区分
-2. 路由压缩： npm install koa-combine-routers --save
+2. 路由压缩(只要使用一次use即可不用重复调用)： npm install koa-combine-routers --save
 3. 静态资源： koa-static
+
+初始化项目目录
+
+```bash
+初始化一个项目 koa-pro
+npm init -y
+npm install koa koa-router koa-body @koa/cors koa-json koa-combine-routers koa-helment koa-static --save
+//koa-pro 下新建 public目录放静态资源文件
+mkdir public
+//koa-pro 下新建 src目录
+mkdir src
+//src  下新建 index.js 作为入口文件
+touch src/index.js 
+//src 下新建api文件夹 进行路由业务处理
+mkdir src/api 
+//routes 下新建routes.js  合并routes
+mkdir src/routes
+```
+
+安全头
+
+```javascript
+koa-helmet 安全头
+const helmet = require('koa-helmet')
+app.use(helmet())
+
+```
+
+静态资源压缩
+
+```javascript
+koa-static 静态文件引入
+
+const static = require('koa-static')
+const path = require('path')
+
+app.use(static(path.join(__dirname, '../public')))       
+```
+
 
 
 ## Koa开发热加载、ES6语法支持
+
+#### 热加载 nodemon
+
+js发生变化时直接启动，起到一个热加载到效果
+
+```bash
+安装到测试环境
+npm install -D nodemon
+查看版本
+npx nodemon --version
+启动index.js
+npx nodemon src/index.js
+修改一下配置文件的npm 脚本
+package.json >>
+"script": {
+   "start": "nodemon src/app.js"
+}
+这样我们每次调试只要使用 `npm run start` 就可以使用热加载功能啦
+```
+
+#### ES6 语法支持
+
+```bash
+npm install -D webpack webpack-cli 
+npm install -D clean-webpack-plugin webpack-node-externals @babel/core @babel/node @babel/preset-env babel-loader cross-env @babel/node 
+// 创建配置文件
+touch webpack.config.js
+
+
+```
+
+1. clean-webpack-plugin: 清理dist目录下的文件
+2. webpack-node-externals 主要是对node_modules下的文件做一个排除处理
+3. @babel/core @babel/node 调试需要
+4. @babel/preset-env 对特性做支持
+5. babel-loader 在webpack中使用到的loader
+6. cross-env 设置环境变量 
+
+
+
+下配置不适用最新版本webpack的需要降级：使用webpack v4 webpackcli v3`cnpm i -D webpack@4 webpack-cli@3`
+
+webpack.config.js:
+
+```javascript
+const path = require('path')
+const nodeExternals = require('webpack-node-externals')
+const {CleanWebpackPlugin} = require('clean-webpack-plugin')
+webpackconfig = {
+	target: "node",
+	mode: 'development',
+	entry: {
+		server: path.join(__dirname, './src/index.js')
+	},
+	output: {
+		filename: '[name].bundle.js',
+		path: path.join(__dirname, './dist')
+	},
+	devtool:'eval-source-map',
+	module: {
+		rules: [
+			{
+				test: /\.(js|jsx)$/,
+				use: {
+					loader: 'babel-loader'
+				},
+				exclude: [path.join(__dirname, '/node_modules')]
+			}
+		]
+	},
+	externals: [nodeExternals()],
+	plugins: [
+		new CleanWebpackPlugin()
+	],
+	node: {
+		console: true,
+		global: true,
+		process: true,
+		Buffer: true,
+		__filename: true,
+		__dirname: true,
+		setImmediate: true,
+		path: true
+	}
+}
+console.log(webpackconfig)
+module.exports = webpackconfig
+```
+
+.babelrc
+
+```
+{
+	"presets": [
+		[
+			"@babel/preset-env",
+			{
+				"targets": {
+					"node": "current"
+				}
+			}
+		]
+	]
+}
+
+```
+
+npx webpack (打包指令)运行成功之后，index引用改为ES6语法
+
+```javascript
+
+    import koa from 'koa'
+    import path from 'path'
+    import helmet from 'koa-helmet'
+    import statics from 'koa-static'
+    import router from './routes/routes'
+    
+    const app = new koa()
+```
+
+```javascript
+ npx nodemon --exec babel-node src/index.js
+
+
+
+除了npx运行方式，可以在package,json中添加脚本运行
+
+  "scripts": {
+
+   //"start": "nodemon src/index.js"
+
+    "start": "nodemon --exec babel-node src/index.js"
+
+  },
+      
+```
 
 
 
@@ -466,11 +645,97 @@ v4迁移v5指南：https://webpack.docschina.org/migrate/5/
 
 ## 调试webpack、配置vscode调试
 
+如何查看webpack配置是否正确
 
+#### webpack.config.js:
+
+```
+  console.log(webpackconfig)
+```
+
+#### 使用node 调试
+
+ 监视调试的过程     
+
+```bash
+npx node --inspect-brk ./node_modules/.bin/webpack  --inline --progress 
+npx node --inspect-brk ./node_modules/webpack/bin/webpack --inline --progress  
+```
+
+第一种苹果电脑适用  第二种windows电话适用
+
+执行之后，谷歌浏览器打开  chrome://inspect/#devices
+
+点击inspect  ,打开一个webpack的调试窗口  
+
+在const webpackconfig  前添加debugger断点
+
+```
+module.exports = webpackconfig前添加console.log(webpackconfig)
+debuggerconsole.log(webpackconfig)
+```
+
+把调试语句添加到package.json的scripts里
+
+```javascript
+"scripts": {  
+"start": "nodemon --exec babel-node src/index.js",   
+"webpack:debug": "node --inspect-brk ./node_modules/webpack/bin/webpack --inline --progress"  },
+之后可以使用 npm run webpack:debug
+```
+
+<img src="Koa入门1-简介和原理/image-20210527184528651.png" alt="image-20210527184528651" style="zoom:50%;" />
+
+点击运行开始debug
+
+<img src="Koa入门1-简介和原理/image-20210527184556060.png" alt="image-20210527184556060" style="zoom:50%;" />
+
+### VsCode 调试
+
+1. 点小虫子之后选择调试环境为NodeJs
+
+   ![image-20210527185236825](Koa入门1-简介和原理/image-20210527185236825.png)
+
+2. 修改调试配置文件 .vscode/launch.json
+
+   ```json
+   {
+     // 使用 IntelliSense 了解相关属性。 
+     // 悬停以查看现有属性的描述。
+     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+     "version": "0.2.0",
+     "configurations": [
+       
+       {
+         "type": "pwa-node",
+         "request": "launch",
+         "name": "Launch Program",
+         "skipFiles": [
+           "<node_internals>/**"
+         ],
+         "program": "${file}",
+         "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/nodemon",
+         "program": "${workspaceFolder}/src/index.js",
+         "runtimeArgs": ["--exec", "babel-node"]
+       }
+     ]
+   }
+   ```
+
+   
+
+3. 给要调试的内容打断点开启调试
+
+	<img src="Koa入门1-简介和原理/image-20210527194728471.png" alt="image-20210527194728471" style="zoom: 67%;" />
+
+5. 在监视里加上想监视的变量名
+   ![image-20210527194542709](Koa入门1-简介和原理/image-20210527194542709.png)
 
 #实战篇
 
 ## 优化webpack配置、npm构建脚本
+
+
 
 
 
