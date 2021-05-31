@@ -737,8 +737,72 @@ debuggerconsole.log(webpackconfig)
 
 
 
+#### npm构建脚本
+
+- 检查npm依赖包是否有需要更新的
+
+全局安装 
+
+```bash
+npm install -g npm-check-updates
+```
+
+查看可以更新的依赖包
+
+```bash
+ncu
+```
+
+更新package.json
+
+```bash
+ncu -u
+```
+
+删除node_modules文件夹，重新 npm install
+
+```bash
+rm -rf node_modules
+npm install
+```
 
 
 
+- koa-compose 整合中间件，避免了重复的use 中间件
+
+  ```bash
+  npm install koa-compose -S
+  ```
+
+#### 优化webpack的配置
+
+- webpack-merge 合并webpack配置
+
+- terser-webpack-plugin 压缩js代码， webpack5及以上版本不需要安装
+
+- 推荐配置
+
+#### 多套webpack 配置 （开发，打包，基本）
+
+通过env处理多套环境的webpack配置。`webpack.config.prod.js`,`webpack.config.dev.js`,`webpack.config.base.js`
+
+webpack.config.prod
+
+```javascript
+...
+	plugins: [
+		new CleanWebpackPlugin(),
+		new webpack.DefinePlugin({
+			'process.env': {
+				NODE_ENV: (process.env.NODE_ENV === 'production'||
+				process.env.NODE_ENV === 'prod')?"'production'":"'development'"
+			}
+		})
+	],
+...	
+```
+
+DefinePlugin允许我们配置一个常量在打包的时候进行使用。这个常量除了可以区别我们的webpack配置，还可以区分打包时的端口号，打包时的url。
 
 ## Koa应用打包优化
+
