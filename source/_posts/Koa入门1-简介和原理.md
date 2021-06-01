@@ -768,11 +768,11 @@ npm install
 
 
 
-- koa-compose 整合中间件，避免了重复的use 中间件
+#### koa-compose 整合中间件，避免了重复的use 中间件
 
-  ```bash
-  npm install koa-compose -S
-  ```
+```bash
+npm install koa-compose -S
+```
 
 #### 优化webpack的配置
 
@@ -782,27 +782,86 @@ npm install
 
 - 推荐配置
 
-#### 多套webpack 配置 （开发，打包，基本）
+##### 多套webpack 配置 （开发，打包，基本）
 
 通过env处理多套环境的webpack配置。`webpack.config.prod.js`,`webpack.config.dev.js`,`webpack.config.base.js`
 
-webpack.config.prod
+webpack.config.base 基本配置
 
 ```javascript
-...
-	plugins: [
+plugins: [
 		new CleanWebpackPlugin(),
-		new webpack.DefinePlugin({
-			'process.env': {
-				NODE_ENV: (process.env.NODE_ENV === 'production'||
-				process.env.NODE_ENV === 'prod')?"'production'":"'development'"
-			}
-		})
+		new webpack.EnvironmentPlugin(['NODE_ENV'])
 	],
-...	
 ```
 
-DefinePlugin允许我们配置一个常量在打包的时候进行使用。这个常量除了可以区别我们的webpack配置，还可以区分打包时的端口号，打包时的url。
+EnvironmentPlugin允许我们配置一个常量在打包的时候进行使用。这个常量除了可以区别我们的webpack配置，还可以区分打包时的端口号，打包时的url。
+
+##### webpack-merge 合并webpack配置
+
+```bash
+npm i webpack-merge -D
+```
+
+webpack.config.dev.js 开发配置
+
+##### terser-webpack-plugin 压缩js代码， webpack5及以上版本不需要安装
+
+https://v4.webpack.docschina.org/plugins/terser-webpack-plugin/
+
+```bash
+npm i terser-webpack-plugin -D
+```
+
+
+
+
 
 ## Koa应用打包优化
 
+
+
+#### 打包资源压缩，避免重复依赖
+
+SplitChunksPlugin
+
+https://v4.webpack.docschina.org/plugins/split-chunks-plugin/
+
+配置：
+
+```javascript
+    //打包资源压缩，避免重复依赖 SplitChunksPlugin
+    splitChunks: {
+      cacheGroups: {
+        commons: {
+          name: 'commons',
+          chunks: 'initial',
+          minChunks: 3,
+          enforce: true,
+        },
+      },
+    },
+```
+
+执行脚本
+
+```json
+"build": "cross-env NODE_ENV=production webpack --config config/webpack.config.prod.js",
+"dev": "cross-env NODE_ENV=dev nodemon --exec babel-node --inspect ./src/index.js"
+```
+
+#### Clean 脚本
+
+```bash
+npm i -D rimraf
+//package.json scripts增加clean操作
+"clean": "rimraf dist"
+```
+
+#### Koa-compress
+
+```javascript
+npm install koa-compress
+koa-compress压缩koa的中间件，基本使用方法：
+app.use(compress());       
+```
