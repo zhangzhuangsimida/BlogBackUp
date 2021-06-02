@@ -2,11 +2,11 @@
 title: 【剑指offer01】-数组
 date: 2021-02-19 16:26:58
 categories:
-- 算法
+- 数据结构与算法
 - 数组
 - 剑指offer
 tags:
-- 算法
+- 数据结构与算法
 - 数组
 - 剑指offer
 ---
