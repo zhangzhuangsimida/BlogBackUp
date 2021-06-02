@@ -3,10 +3,10 @@ title: AndroidStudio疑难杂症
 date: 2021-02-20 18:47:58
 categories:
 - Android 
-  - AndroidStudio
+- AndroidStudio
 tags:
 - Android 
-  - AndroidStudio
+- AndroidStudio
 ---
 
 # Mac OS 下AndroidStudio手动下载gradle(自动下载太慢)

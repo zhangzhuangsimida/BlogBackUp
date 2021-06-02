@@ -3,12 +3,12 @@ title: Koa入门
 date: 2021-03-07 23:04:57
 categories:
 - 前端
- - Node
-  - Koa
+- Node
+- Koa
 tags:
 - 前端
- - Node
-  - Koa
+- Node
+- Koa
 ---
 
 # Koa 简介
@@ -25,7 +25,7 @@ Koa是一个新的Web框架，致力于成为web应用和 API 开发领域中的
 - Context （上下文） 责任链模式使用中间件响应request
 - Request （请求）、Response （响应）
 
-<img src="Koa入门1-简介和原理.assets/image-20210308084411717.png" alt="image-20210308084411717" style="zoom:50%;" />
+<img src="image-20210308084411717.png" alt="image-20210308084411717" style="zoom:50%;" />
 
 ###Hello Wolrd
 

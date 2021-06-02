@@ -3,11 +3,11 @@ title: Sophix
 date: 2021-02-02 15:58:54
 categories:
 - Android 
-  - Android核心
-    - 热修复
+- Android核心
+- 热修复
 tags:
 - Android
-  - 热修复
+- 热修复
 ---
 
 # Sophix

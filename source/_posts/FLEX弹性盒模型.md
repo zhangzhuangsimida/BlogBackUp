@@ -3,10 +3,10 @@ title: FLEX弹性盒模型
 date: 2021-03-04 11:18:52
 categories: 
 - 前端
-  - css
+- css
 tags:
 - 前端
-  - css
+- css
 ---
 
 ## 了解弹性
