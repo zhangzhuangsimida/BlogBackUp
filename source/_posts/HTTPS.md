@@ -35,7 +35,7 @@ HTTP不是稳定链接，稳定的是TCP，HTTPS主要用于加密传输数据�
 
 简单：
 
-1. 客户端请求TLS连接
+1. 客户端请求TLS连接 say hello
    1. ClientHello
    2. ServerHello
 2. 服务器发回证书
