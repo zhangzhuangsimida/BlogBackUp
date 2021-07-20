@@ -56,3 +56,16 @@ https://developer.android.google.cn/studio/releases/gradle-plugin#updating-plugi
         <option name="delegatedBuild" value="false" />
 ```
 
+### NDK无法找到
+
+`NDK at ~/android-sdk-macosx/ndk-bundle did not have a source.properties file`
+
+Studio 3.0之后
+
+**这些文件都被存在在具体的ndk下， 如 …\SDK\ndk\21.1.6352462 ；
+这个时候只要在项目的 local.properties 文件里加入具体ndk目录就行了，如下：**
+
+```text
+ndk.dir=D\:\\Android\\sdk\\ndk\\21.1.6352462
+```
+
