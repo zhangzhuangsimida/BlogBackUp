@@ -62,8 +62,8 @@ Call.execute() 是同步的。
 
    1.  ```java
    loadServiceMethod(method)
-      ```
-      
+     ```
+     
       这行代码负责读取 interface 中原方法的信息(包括返回值类型、方法注解、参数类型、参数注解)，并将这些信息做初步分析。实际返回的是一个`CallAdapted` 。
 
    2. `OkHttpCall `的创建:
