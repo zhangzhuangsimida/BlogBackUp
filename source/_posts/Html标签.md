@@ -50,7 +50,7 @@ Input标签的name相当于Http 普通表单`ContentType : application/x-www-for
   </form>
 ```
 
-> 想在点击`abel`的时候让`input`获得焦点，要么用label标签包裹input ，要么让`input` 的`id`属性和`label`的`for`属性内容一致。
+> 想在点击`label`的时候让`input`获得焦点，要么用label标签包裹input ，要么让`input` 的`id`属性和`label`的`for`属性内容一致。
 
 ### INPUT
 
