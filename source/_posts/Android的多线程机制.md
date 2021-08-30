@@ -276,8 +276,6 @@ Java要是想做到像Android一样循环过程中执行任务，也需要像And
 
 ## AsyncTask: 的内存泄露
 
-
-
 众所周知的原因:AsyncTask 持有外部 Activity 的引用 (官方提示asynctask若不是静态的会持有外部的activity引用导致内存泄漏)
 
 没提到的原因:执行中的线程不会被系统回收
