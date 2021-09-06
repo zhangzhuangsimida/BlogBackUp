@@ -417,7 +417,7 @@ implements Disposable { ...
 
 ObservableMap的任务取消
 
-dispose也是拿到上游的disposed进行取消，几乎等同于直接拿到上游的对象进行取消
+dispose也是拿到上游的disposable进行取消，几乎等同于直接拿到上游的对象进行取消
 map只是通过包装在消息传达时多做一些操作符操作而已
 
 ```kotlin

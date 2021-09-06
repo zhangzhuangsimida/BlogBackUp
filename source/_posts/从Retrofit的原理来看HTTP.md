@@ -17,7 +17,8 @@ tags:
 1. 创建一个interface作为WebService的请求集合，在里面用注解(Annotation)写入需要配置的请求方法
 
 ```java
-public interface GitHubService { @GET("users/{user}/repos")
+public interface GitHubService { 
+  @GET("users/{user}/repos")
 	Call<List<Repo>> listRepos(@Path("user") String user);
 }
 ```
