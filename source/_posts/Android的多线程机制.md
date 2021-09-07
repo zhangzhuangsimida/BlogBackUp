@@ -229,7 +229,7 @@ public final class Looper {
 
 ### Handler:
 
-负责任务的定制和线程间传递，本质
+负责任务的定制和线程间传递消息
 
 ```java
 public class Handler {
