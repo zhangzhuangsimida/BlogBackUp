@@ -1629,7 +1629,7 @@ void main() {
 使用hide关键字隐藏部分功能
 
 ```dart
-// import 'lib/myMath.dart' show getName, getAge;
+// import 'lib/myMath.dart' show getName, ·getAge;
 import 'lib/myMath.dart' hide getName;
 
 void main() {

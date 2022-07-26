@@ -15,31 +15,29 @@ tags:
 
 ```kotlin
  
-				@GET("users/{username}/repos")
-			  // Observable和Flow都过重，网络请求 推荐single
-				fun getRepos(@Path("username") username: String): Single<List<Repo>>
+@GET("users/{username}/repos")
+// Observable和Flow都过重，网络请求 推荐single
+fun getRepos(@Path("username") username: String): Single<List<Repo>>
 ...
-        api.getRepos("rengwuxian")
-            .subscribeOn(Schedulers.io())//请求切换到io线程
-            .observeOn(AndroidSchedulers.mainThread())// 回调在主线程
-            .subscribe(object : SingleObserver<MutableList<Repo>> {
+api.getRepos("rengwuxian")
+ .subscribeOn(Schedulers.io())//请求切换到io线程
+ .observeOn(AndroidSchedulers.mainThread())// 回调在主线程
+  .subscribe(object : SingleObserver<MutableList<Repo>> {
+    override fun onSuccess(repos: MutableList<Repo>) {
+       textView.text = "Result :${repos!![0].name}"
+  }
 
-                override fun onSuccess(repos: MutableList<Repo>) {
-                    textView.text = "Result :${repos!![0].name}"
-                }
+  override fun onSubscribe(d: Disposable?) {
+   // 订阅产生之后就会回调（网络请求之前）所以适合初始化
+   // dispose 丢弃，一般使用时会通知上游停止生产
+   textView.text = "正在请求"
+   disposeable = d
+  }
 
-                override fun onSubscribe(d: Disposable?) {
-                    // 订阅产生之后就会回调（网络请求之前）所以适合初始化
-                    // dispose 丢弃，一般使用时会通知上游停止生产
-                    textView.text = "正在请求"
-                    disposeable = d
-                }
-
-                override fun onError(e: Throwable) {
-                    textView.text = e.message ?: e.javaClass.name
-                }
-
-            })
+  override fun onError(e: Throwable) {
+     textView.text = e.message ?: e.javaClass.name
+  }
+})
 ```
 
 ## 框架结构
@@ -221,16 +219,16 @@ public final class SingleMap<T, R> extends Single<R> {
 ### 有延迟的任务如何取消
 
 ```kotlin
-        // 延迟调用， ，每间隔一秒调用一次
-        Observable.interval(0,1,TimeUnit.SECONDS)
-            .observeOn(AndroidSchedulers.mainThread())// 延迟发生在子线程，所以回调到主线程主线程
-            .subscribe(object: Observer<Long?> {
-                override fun onComplete() {}
-                override fun onSubscribe(d: Disposable?) { }
-                override fun onNext(t: Long?) {
-                    textView.text = t.toString()
-                }
-                override fun onError(e: Throwable?) {}} )
+ // 延迟调用， ，每间隔一秒调用一次
+ Observable.interval(0,1,TimeUnit.SECONDS)
+  .observeOn(AndroidSchedulers.mainThread())// 延迟发生在子线程，所以回调到主线程主线程
+  .subscribe(object: Observer<Long?> {
+    override fun onComplete() {}
+    override fun onSubscribe(d: Disposable?) { }
+    override fun onNext(t: Long?) {
+      textView.text = t.toString()
+    }
+    override fun onError(e: Throwable?) {}} )
 ```
 
 ```kotlin

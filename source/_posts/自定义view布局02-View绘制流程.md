@@ -29,7 +29,7 @@ tags:
 
 ![image-20210907180743677](https://gitee.com/laonaiping/blog-images/raw/master/img/image-20210907180743677.png)
 
-
+1.
 
 ## Activity与View
 
@@ -939,7 +939,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
 
 ### WindowManagerGlobal
 
-记录所有的View和ViewRootImpl 这个类是隐藏的，可以返回得到
+记录所有的View和ViewRootImpl 这个类是隐藏的，可以得到
 
 Activity在生命周期中能拿到Global，而Dialog没有生命周期，只能用反射拿到所有底层View和所有属性
 
@@ -1208,9 +1208,9 @@ ViewRootImpl是WindowManagerGlobal 调用addView()时创建的
 
 ### 3. 利用硬件加速机制绕开 requestLayout()
 
-在硬件加速的支持下，如果控件只是经常了 invalidate() ，而没有触发requestLayout() 是不会触发。ViewRootImplcheckThread() 的。
+在硬件加速的支持下，如果控件只是经常了 invalidate() ，而没有触发requestLayout() 是不会触发。ViewRootImpl的checkThread() 的。
 
-子View会依赖父ViewGroup的invalidate()实现，而作为最顶层的ViewRootImpl，它的invalidate()方法会直接调用scheduleTraversals();绘制图形，而不像requestLayout() 在调用scheduleTraversals()之前要chekThread()
+子View会依赖父ViewGroup的invalidate()实现，而作为最顶层的ViewRootImpl，它的invalidate()方法会直接调用scheduleTraversals();绘制图形，而不像requestLayout() 在调用scheduleTraversals()之前要chekThread
 
 TextView.setView()会调用  checkForRelayout() 方法，宽度不变或者宽高都不变则只会调用invalidate();
 

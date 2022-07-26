@@ -65,7 +65,7 @@ Call.execute() 是同步的。
    loadServiceMethod(method)
      ```
      
-      这行代码负责读取 interface 中原方法的信息(包括返回值类型、方法注解、参数类型、参数注解)，并将这些信息做初步分析。实际返回的是一个`CallAdapted` 。
+     这行代码负责读取 interface 中原方法的信息(包括返回值类型、方法注解、参数类型、参数注解)，并将这些信息做初步分析。实际返回的是一个`CallAdapted` 。
 
    2. `OkHttpCall `的创建:
 
@@ -79,7 +79,7 @@ Call.execute() 是同步的。
        callAdapter.adapt(call);
       ```
 
-      这个方法会使用一个 CallAdapter 对象来把 OkHttpCall 对象进行转换，生成一个新的对象。默认情况下，返回的是一个 ExecutorCallbackCall ，它的作用是把操 作切回主线程后再交给 Callback 。
+      这个方法会使用一个 CallAdapter 对象来把 OkHttpCall 对象进行转换，生成一个新的对象。默认情况下，返回的是一个 ExecutorCallbackCall ，它的作用是把操作切回主线程后再交给 Callback 。
 
 ## 源码分析：Retrofit.create() 
 

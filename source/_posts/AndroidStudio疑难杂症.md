@@ -69,3 +69,22 @@ Studio 3.0之后
 ndk.dir=D\:\\Android\\sdk\\ndk\\21.1.6352462
 ```
 
+
+
+# Could not find tools.jar. Please check that /Library/Internet Plug-Ins/JavaAppletPlugin.plugin
+
+mac使用如下命令快速找到java jdk路径：
+
+ /usr/libexec/java_home -V
+1
+会显示两个路径：
+/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home路径和jdk路径/Library/Java/JavaVirtualMachines/jdk1.8.0_192.jdk/Contents/Home
+
+可以通过桌面前往-前往文件夹JDK路径，将tools.jar复制到/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib
+
+或使用sudo cp命令复制 （注意替换成自己的地址）：
+
+sudo cp /Library/Java/JavaVirtualMachines/jdk1.8.0_192.jdk/Contents/Home/lib/tools.jar /Library/Internet\ Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib
+————————————————
+版权声明：本文为CSDN博主「catecher_NULL972」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/GUO_NULL192/article/details/119649802

@@ -42,7 +42,7 @@ path不见得是路径，可能是路径圈出来的形状
 FillType：
 
 ```kotlin
-        p path.reset()
+        path.reset()
         path.addCircle(width/2f,height/2f, RADIUS,Path.Direction.CW)
         path.addRect(width/2f- RADIUS,height/2f,
             width/2f+ RADIUS, height/2f+2*RADIUS,Path.Direction.CCW)

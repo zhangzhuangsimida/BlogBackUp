@@ -3,10 +3,10 @@ title: '自定义view绘制04:范围裁切和几何变换'
 date: 2021-08-24 11:11:05
 categories:
 - Android
-- 自定义View
+- 自定义view
 tags:
 - Android
-- 自定义View
+- 自定义view
 ---
 
 # 范围裁切和几何变换
